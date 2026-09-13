@@ -2,7 +2,7 @@
 > 作品集项目：AI生成多平台社媒文案，支持中文小红书风格，扩展俄语VK社媒文案生成模块。前端网页 + Flask后端 + Ollama本地大模型。
 
 🔗 在线预览：https://findafinejobnow.github.io/portfolio/ai-text-preview/
-> 🚧 当前状态：前端UI已完成，前端为模拟生成演示；Flask + Ollama本地后端正在开发中，本地环境可接入Qwen2.5:7b实现真实AI文案生成。
+> 🚧 当前状态：线上部署版本为纯前端 UI，仅做模拟生成演示；Flask + Ollama 本地后端正在开发，在本机部署 Ollama Qwen2.5:7b 后，可接入 API 实现真实 AI 文案生成。
 
 
 ## ✨ 项目亮点
