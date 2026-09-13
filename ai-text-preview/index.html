@@ -3,505 +3,347 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文本风格预览小工具</title>
+    <title>文本风格预览小工具 | 前端原型</title>
     <style>
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         body {
-            background-color: #f4f7fa;
-            padding: 24px;
-            max-width: 920px;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 30px 15px;
+        }
+        .container {
+            max-width: 820px;
             margin: 0 auto;
-            color: #2d3748;
-            line-height: 1.6;
-        }
-        .header-card {
-            background: #ffffff;
-            padding: 20px 24px;
-            border-radius: 14px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            margin-bottom: 20px;
-        }
-        h1 {
-            font-size: 26px;
-            text-align: center;
-            margin-bottom:10px;
-            color:#1a202c;
-        }
-        .desc-text {
-            font-size:14px;
-            color:#606b7b;
-            text-align:center;
         }
         .card {
-            background: #fff;
-            padding:24px;
-            border-radius:14px;
-            box-shadow:0 2px 12px rgba(0,0,0,0.06);
-            margin-bottom:20px;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            margin-bottom: 20px;
         }
-        textarea {
+        .title-card h1 {
+            text-align: center;
+            font-size:26px;
+            color:#1f2937;
+            margin:0 0 10px;
+        }
+        .title-card p {
+            text-align:center;
+            color:#4b5563;
+            font-size:14px;
+            margin:0;
+        }
+        textarea#input-text {
             width:100%;
-            min-height:150px;
+            min-height:140px;
             padding:14px;
-            border:1px solid #e2e8f0;
-            border-radius:10px;
+            border:1px solid #d1d5db;
+            border-radius:12px;
             font-size:15px;
             resize:vertical;
-            margin-bottom:18px;
-            transition: border 0.2s;
         }
-        textarea:focus {
-            outline:none;
-            border-color:#718096;
-        }
-        .control-row {
+        .row-wrap {
             display:flex;
-            gap:16px;
+            gap:20px;
             flex-wrap:wrap;
-            margin-bottom:18px;
+            margin:16px 0;
             align-items:center;
         }
-        .control-group {
+        .form-item {
             flex:1;
             min-width:220px;
         }
         label {
             display:block;
             font-size:14px;
+            color:#374151;
             margin-bottom:6px;
-            font-weight:500;
-            color:#4a5568;
         }
         select, input[type="range"] {
             width:100%;
-            padding:10px 12px;
-            border:1px solid #e2e8f0;
+            padding:9px 12px;
             border-radius:8px;
+            border:1px solid #d1d5db;
             font-size:15px;
         }
         .radio-group {
             display:flex;
-            gap:14px;
-            flex-wrap:wrap;
-            padding:6px 0;
+            gap:16px;
+            margin:12px 0;
         }
-        .btn-row {
+        .btn-group {
             display:flex;
             gap:12px;
-            flex-wrap:wrap;
-            margin-top:12px;
+            margin:20px 0;
         }
         button {
-            padding:11px 18px;
-            border-radius:9px;
-            font-size:15px;
+            padding:10px 20px;
+            border-radius:8px;
             border:none;
+            font-size:15px;
             cursor:pointer;
-            transition: all 0.2s ease;
-            font-weight:500;
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        #preview-btn {
+            background-color:#6366f1;
             color:white;
         }
-        .btn-primary:hover {
-            opacity:0.92;
-            transform: translateY(-1px);
+        #clear-btn, #copy-btn {
+            background-color:#e5e7eb;
+            color:#1f2937;
         }
-        .btn-secondary {
-            background:#edf2f7;
-            color:#2d3748;
+        .result-area {
+            min-height:140px;
+            padding:14px;
+            border:1px solid #e5e7eb;
+            border-radius:12px;
+            background:#f9fafb;
+            margin-bottom:16px;
+            white-space: pre-line;
         }
-        .btn-secondary:hover {
-            background:#e2e8f0;
-        }
-        #resultArea {
-            margin-top:10px;
-            padding:18px;
+        .tag-block{
+            background:#eff6ff;
             border-radius:10px;
-            background:#f7f9fc;
-            min-height:90px;
-            white-space:pre-wrap;
-            line-height:1.7;
-            transition: opacity 0.3s ease;
+            padding:14px;
+            margin-bottom:16px;
         }
-        .loading {
-            opacity:0.5;
+        .tag-title{
+            font-weight:bold;
+            color:#1e40af;
+            margin-bottom:8px;
         }
-        .highlight-word {
-            background-color: #ffeaa7;
-            padding:0 3px;
-            border-radius:3px;
+        .vlog-tip{
+            background:#f0fdf4;
+            border-radius:10px;
+            padding:12px;
+            margin-bottom:16px;
+            color:#166534;
+            display:none;
         }
-        .history-item {
-            padding:12px 14px;
-            background:#f7f9fc;
-            border-radius:8px;
+        .feedback-block{
+            border:1px solid #ddd6fe;
+            background:#faf5ff;
+            border-radius:12px;
+            padding:16px;
+            margin-top:20px;
+        }
+        .feedback-block h4{
+            margin-top:0;
             margin-bottom:10px;
-            cursor:pointer;
-            transition: 0.2s;
+            color:#5b21b6;
         }
-        .history-item:hover {
-            background:#edf2f7;
-        }
-        .toast {
-            position:fixed;
-            bottom:30px;
-            right:30px;
-            background:#2f855a;
-            color:white;
-            padding:12px 20px;
+        #feedback-text{
+            width:100%;
+            min-height:80px;
+            border:1px solid #d8b4fe;
             border-radius:8px;
-            box-shadow:0 4px 12px rgba(0,0,0,0.15);
-            opacity:0;
-            transition:opacity 0.3s;
-            pointer-events:none;
+            padding:10px;
         }
-        .toast.show {
-            opacity:1;
+        #submit-feedback{
+            margin-top:10px;
+            background:#8b5cf6;
+            color:white;
         }
     </style>
 </head>
 <body>
-    <div class="header-card">
-        <h1>文本风格预览小工具｜前端原型</h1>
-        <div class="desc-text">
-            说明：本Demo基于预设模板模拟文案风格改写，无后端、不调用大模型API；是跨文化内容分析工具交互原型，后续将接入本地Ollama大模型实现真实AI生成。
+    <div class="container">
+        <div class="card title-card">
+            <h1>文本风格预览小工具 | 前端原型</h1>
+            <p>说明：本Demo为作品集静态演示版；完整AI版本本地可接入Ollama Qwen实现真实文案生成。</p>
+        </div>
+
+        <div class="card">
+            <textarea id="input-text" placeholder="在这里粘贴你的自媒体文案/感悟..."></textarea>
+
+            <div class="row-wrap">
+                <div class="form-item">
+                    <label>文风选择</label>
+                    <select id="style-select">
+                        <option value="xiaohongshu">小红书种草</option>
+                        <option value="dry">干货</option>
+                        <option value="vlog">Vlog口播</option>
+                        <option value="vk">VK俄系社媒风格（全俄语）</option>
+                        <option value="ins">Ins英文短文案风格（全英文）</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label>钩子强度: <span id="hook-value">中等</span></label>
+                    <input id="hook-slider" type="range" min="1" max="5" value="3">
+                </div>
+            </div>
+
+            <div>
+                <label>文案长度</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="len" value="short"> 短句版</label>
+                    <label><input type="radio" name="len" value="normal" checked> 常规版</label>
+                    <label><input type="radio" name="len" value="long"> 加长叙事版</label>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button id="preview-btn">预览风格</button>
+                <button id="clear-btn">清空输入</button>
+                <button id="copy-btn">复制结果</button>
+            </div>
+
+            <div class="vlog-tip" id="vlog-tip">
+                💡 Vlog口播预估朗读时长：<span id="time-estimate">约1分20秒</span>
+            </div>
+
+            <div class="result-area" id="result-area">预览结果将展示在这里</div>
+
+            <div class="tag-block" id="tag-block" style="display:none;">
+                <div class="tag-title">推荐平台标签</div>
+                <div id="tag-content">#自媒体 #内容创作 #AIGC</div>
+            </div>
+
+            <div class="feedback-block">
+                <h4>不满意？提交修改反馈</h4>
+                <p style="font-size:14px;color:#4b5563;margin:0 0 8px;">写下你的调整要求，完整版后端会记录你的偏好，下次生成自动参考</p>
+                <textarea id="feedback-text" placeholder="例如：口语再强一点 / 俄语文案不要学术词汇 / 钩子冲击力不足"></textarea>
+                <button id="submit-feedback">提交偏好记录</button>
+            </div>
         </div>
     </div>
 
-    <div class="card">
-        <textarea id="inputText" placeholder="在这里粘贴你的自媒体文案/感悟..."></textarea>
+<script>
+    const hookSlider = document.getElementById('hook-slider');
+    const hookValue = document.getElementById('hook-value');
+    const hookMap = {1:"很弱",2:"偏弱",3:"中等",4:"较强",5:"强钩子"};
+    hookSlider.oninput = ()=>{
+        hookValue.innerText = hookMap[hookSlider.value];
+    }
 
-        <div class="control-row">
-            <div class="control-group">
-                <label>文风选择</label>
-                <select id="styleSelect">
-                    <option value="xiaohongshu">小红书钩子风</option>
-                    <option value="dry">简洁干货风</option>
-                    <option value="story">故事叙事风</option>
-                    <option value="vk">VK俄系社媒风格（全俄语）</option>
-                    <option value="ins">Ins英文短文案风格（全英文）</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label>钩子强度：<span id="strengthLabel">中等</span></label>
-                <input id="strengthSlider" type="range" min="0" max="2" value="1">
-            </div>
-        </div>
+    const styleSelect = document.getElementById('style-select');
+    const vlogTip = document.getElementById('vlog-tip');
+    const timeEstimate = document.getElementById('time-estimate');
+    styleSelect.onchange = ()=>{
+        if(styleSelect.value === 'vlog'){
+            vlogTip.style.display = "block";
+        }else{
+            vlogTip.style.display = "none";
+        }
+    }
 
-        <div class="control-group">
-            <label>文案长度</label>
-            <div class="radio-group">
-                <label><input type="radio" name="lenType" value="short">短句版</label>
-                <label><input type="radio" name="lenType" value="normal" checked>常规版</label>
-                <label><input type="radio" name="lenType" value="long">加长叙事版</label>
-            </div>
-        </div>
+    // 模板文案生成核心函数（A版本重点）
+    function generateMockText(rawInput, style, hookLevel, lenType){
+        const hookPrefix = {
+            1: "",
+            2: "简单聊聊：",
+            3: "分享一个有意思的发现：",
+            4: "谁懂啊！",
+            5: "救命！这个点真的戳到我！"
+        }[hookLevel];
 
-        <div class="btn-row">
-            <button class="btn-primary" onclick="generatePreview()">预览风格</button>
-            <button class="btn-secondary" onclick="clearInput()">清空输入</button>
-            <button class="btn-secondary" onclick="copyResult()">复制结果</button>
-        </div>
+        const lenMult = {
+            short: 0.5,
+            normal:1,
+            long:1.6
+        }[lenType];
 
-        <div id="resultArea">预览结果将展示在这里</div>
-    </div>
+        const templates = {
+            xiaohongshu: `${hookPrefix}${rawInput}
 
-    <div class="card">
-        <h3 style="margin-bottom:12px;">📜 生成历史（本地保存，刷新不丢失）</h3>
-        <div id="historyBox"></div>
-    </div>
+停下来回味，才发现很多瞬间值得被记录。
+不必追求宏大叙事，普通日常本身就很有力量。
 
-    <div class="toast" id="toast">✅复制成功</div>
+适合慢慢看，慢慢感受。`,
+            dry: `${hookPrefix}主题：${rawInput}
 
-    <script>
-        // 钩子强度文字映射
-        const strengthMap = ["温和", "中等", "强钩子"];
-        const slider = document.getElementById("strengthSlider");
-        const strengthLabel = document.getElementById("strengthLabel");
-        slider.addEventListener("input", ()=>{
-            strengthLabel.innerText = strengthMap[slider.value];
-        })
+核心要点
+1. 提炼这件事背后的底层逻辑
+2. 拆解可复用的经验，方便落地
+3. 总结避坑提醒，减少试错成本
 
-        // ====================== 扩充后的自媒体高频双语词典 ======================
-        const keywordDict = {
-            "读书": {ru:"Чтение книг", en:"Reading books"},
-            "看书": {ru:"Чтение книг", en:"Reading books"},
-            "阅读": {ru:"Чтение", en:"Reading"},
-            "幸福": {ru:"Счастье", en:"Happiness"},
-            "治愈": {ru:"Исцеление", en:"Healing"},
-            "写作": {ru:"Писательство", en:"Writing"},
-            "文字": {ru:"Текст", en:"Words"},
-            "美学": {ru:"Эстетика", en:"Aesthetics"},
-            "产品": {ru:"Продукт", en:"Product"},
-            "成长": {ru:"Личностный рост", en:"Personal growth"},
-            "经验": {ru:"Опыт", en:"Experience"},
-            "感悟": {ru:"Впечатления", en:"Insights"},
-            "思考": {ru:"Размышления", en:"Thoughts"},
-            "生活": {ru:"Жизнь", en:"Life"},
-            "日常": {ru:"Повседневность", en:"Daily life"},
-            "旅行": {ru:"Путешествия", en:"Travel"},
-            "灵感": {ru:"Вдохновение", en:"Inspiration"},
-            "摄影": {ru:"Фотография", en:"Photography"},
-            "咖啡": {ru:"Кофе", en:"Coffee"},
-            "美食": {ru:"Еда", en:"Food"},
-            "极简": {ru:"Минимализм", en:"Minimalism"},
-            "自律": {ru:"Самодисциплина", en:"Self-discipline"},
-            "内耗": {ru:"Внутреннее напряжение", en:"Mental burnout"},
-            "松弛感": {ru:"Расслабленность", en:"Ease"},
-            "独处": {ru:"Уединение", en:"Solitude"},
-            "自由": {ru:"Свобода", en:"Freedom"},
-            "心态": {ru:"Менталитет", en:"Mindset"},
-            "习惯": {ru:"Привычки", en:"Habits"},
-            "学习": {ru:"Обучение", en:"Learning"},
-            "城市": {ru:"Город", en:"City"},
-            "自然": {ru:"Природа", en:"Nature"},
-            "春天": {ru:"Весна", en:"Spring"},
-            "秋天": {ru:"Осень", en:"Autumn"},
-            "碎片时间": {ru:"Фрагментарное время", en:"Fragmented time"},
-            "情绪": {ru:"Эмоции", en:"Emotions"},
-            "自我接纳": {ru:"Самопринятие", en:"Self-acceptance"},
-            "慢生活": {ru:"Медленная жизнь", en:"Slow life"},
-            "审美": {ru:"Эстетическое восприятие", en:"Aesthetic taste"},
-        };
+适合想系统学习的朋友。`,
+            vlog: `${hookPrefix}${rawInput}
 
-        // ====================== 重写模板：中文更新为2026自媒体流行文风，VK/Ins保持纯外文模板 ======================
-        const styleTemplates = {
-            xiaohongshu: {
-                short: [
-                    "✨{kw}，这件事真的戳到我了",
-                    "✨被{kw}狠狠共情住",
-                    "谁懂！{kw}，建议反复品读"
-                ],
-                normal: [
-                    "✨近期很有共鸣的一点：{text}\n慢慢发现，不用急着追求结果，感受本身就足够珍贵。",
-                    "✨分享一个很真实的感受：{text}\n很多人忽略这点，想通之后整个人通透很多，码住慢慢看。",
-                    "✨挖到一个很有意思的视角：{text}\n不用强迫自己，接纳当下状态，才是最好的状态，建议收藏。"
-                ],
-                long: [
-                    "✨最近一直在琢磨这件事：{text}\n以前总在追赶各种目标，不断内耗。\n慢慢才明白，生活不是竞速，学会感受比拿到结果更重要。\n感兴趣可以先存下来，有空慢慢回味。",
-                    "✨分享一段近期感悟：{text}\n很多时候困住我们的不是事情本身，是我们对事情的期待。\n试着降低期待，反而会收获很多意外的松弛感。\n建议点赞收藏，迷茫的时候翻出来看看。",
-                    "✨被这个观点戳中：{text}\n我们总习惯向外寻找答案，却很少停下来倾听自己。\n允许一切发生，允许节奏变慢，也是一种能力。\n码住，希望也能治愈正在看的你。"
-                ]
-            },
-            dry: {
-                short: [
-                    "▫️核心｜{kw}",
-                    "▫️要点：{kw}",
-                    "▫️结论｜{kw}，直接可用"
-                ],
-                normal: [
-                    "▫️核心要点\n{text}\n提炼结论：剥离情绪，聚焦事实，适合快速阅读、笔记留存。",
-                    "▫️精简复盘\n{text}\n去掉无效抒情，保留可复用信息，拿来就能落地参考。",
-                    "▫️客观总结\n{text}\n理清底层逻辑，避开常见误区，适合干货输出。"
-                ],
-                long: [
-                    "▫️要点梳理\n{text}\n剔除冗余情绪表达，只保留关键信息。\n适用场景：知识复盘、行业笔记、干货分享。",
-                    "▫️深度拆解\n{text}\n抓住底层逻辑，分清表象与本质。\n💡提示：少主观感慨，多事实总结，方便读者直接复用。",
-                    "▫️完整复盘\n{text}\n梳理因果关系，标注容易踩坑的细节。\n💡提示：保持客观冷静，适合专业向内容输出。"
-                ]
-            },
-            story: {
-                short: [
-                    "关于{kw}，是我慢慢悟出来的",
-                    "聊一聊{kw}带给我的改变",
-                    "直到亲身经历，才读懂{kw}"
-                ],
-                normal: [
-                    "曾经我对这件事抱有很多想象。\n{text}\n亲身走过一遍才懂，很多感受只能自己体会。",
-                    "很长一段时间我都卡在这个状态里。\n{text}\n慢慢调整之后才明白，转变往往发生在不经意之间。",
-                    "以前很难理解这件事，直到自己经历。\n{text}\n很多道理不是听懂就行，需要时间沉淀。"
-                ],
-                long: [
-                    "曾经很长一段时间，我一直困在固有认知里，不敢轻易改变。\n{text}\n慢慢试错、慢慢调整，想法一点点被重塑。\n有些认知，只有亲身经历之后，才能真正内化。",
-                    "最开始我完全无法理解这件事，一直停留在旁观视角。\n{text}\n当自己真正入局，才看见很多之前看不见的细节。\n很多成长，都藏在一次次微小的体验里面。",
-                    "我踩过不少坑，也推翻过自己很多旧想法。\n{text}\n回头看，没有白走的路，每一段经历都在重塑我们。\n不必焦虑，给成长多一点耐心。"
-                ]
-            },
-            vk: {
-                short: [
-                    "📌 {kw} | Полезно!",
-                    "📌 {kw}, стоит прочитать",
-                    "📌 Важно: {kw}, не пропусти"
-                ],
-                normal: [
-                    "📌 Важная мысль:\n{textRu}\nПолезно для тех, кто интересуется этой темой.",
-                    "📌 Важная мысль:\n{textRu}\nМногие упускают этот момент. Сохраните, чтобы не потерять.",
-                    "📌 Важная мысль:\n{textRu}\nМногие упускают этот важный момент. Сохраните пост, чтобы не потерять потом."
-                ],
-                long: [
-                    "📌 Разбираем тему подробно:\n{textRu}\nМногие люди игнорируют этот нюанс.\nСохраните публикацию, чтобы вернуться позже.",
-                    "📌 Важная мысль:\n{textRu}\nМногие упускают этот момент. Сохраните, чтобы не потерять.\nПоделитесь с теми, кому это будет полезно.",
-                    "📌 Важная мысль:\n{textRu}\nМногие упускают этот важный момент. Сохраните пост, чтобы не потерять потом.\nПоделитесь с друзьями, кому эта информация пригодится."
-                ]
-            },
-            ins: {
-                short: [
-                    "{kw} ✨",
-                    "Thoughts on {kw}",
-                    "Love this take on {kw}"
-                ],
-                normal: [
-                    "Thoughts 🤍\n{textEn}\nSave this post for later.",
-                    "Thoughts 🤍\n{textEn}\nSmall insight worth keeping. Save this post for later.",
-                    "Thoughts 🤍\n{textEn}\nThis perspective changed my view. Save this post for later."
-                ],
-                long: [
-                    "Little insight I’ve been thinking about lately 🤍\n{textEn}\nPerspective matters more than we think.\nSave this post, come back whenever you need it.",
-                    "Thoughts 🤍\n{textEn}\nSmall insight worth keeping. Save this post for later.\nTag someone who needs to see this.",
-                    "Thoughts 🤍\n{textEn}\nThis perspective changed my view. Save this post for later.\nTag a friend who would resonate with this."
-                ]
-            }
-        };
+其实很多感受都是当下一瞬间冒出来的。
+没有精心设计剧本，只是把真实想法讲出来。
 
-        // 简单提取中文关键词
-        function extractKeyword(text) {
-            const words = text.replace(/[，。！？；：\s]/g," ").split(" ").filter(w=>w.length>=2);
-            if(words.length===0) return "";
-            return words[0];
+如果你也有同样的体验，欢迎在评论区聊聊你的看法。`,
+            vk: `${hookPrefix}${rawInput}
+
+Личные размышления и впечатления.
+Поделюсь опытом и мыслями.
+Буду рад вашим комментариям!`,
+            ins: `${hookPrefix}${rawInput}
+
+Moments and thoughts captured in daily life.
+Keep exploring and stay curious ✨`
+        }
+        let text = templates[style];
+        // 加长版本简单重复扩充内容
+        if(lenMult >1){
+            text += "\n\n再多延伸一点，这件事带给我的启发，放在长期视角来看，也很有参考价值。";
+        }else if(lenMult <1){
+            const lines = text.split("\n").filter(line=>line.trim()!=='');
+            text = lines.slice(0,2).join("\n");
+        }
+        return text;
+    }
+
+    const previewBtn = document.getElementById('preview-btn');
+    const resultArea = document.getElementById('result-area');
+    const tagBlock = document.getElementById('tag-block');
+    const tagContent = document.getElementById('tag-content');
+
+    previewBtn.onclick = ()=>{
+        const inputText = document.getElementById('input-text').value.trim();
+        if(!inputText){
+            alert("请先粘贴文案内容");
+            return;
+        }
+        const style = styleSelect.value;
+        const hookLv = hookSlider.value;
+        const lenType = document.querySelector('input[name="len"]:checked').value;
+        // 生成模拟文案
+        const outputText = generateMockText(inputText, style, hookLv, lenType);
+        resultArea.textContent = outputText;
+
+        // 动态估算Vlog朗读时长
+        if(style === 'vlog'){
+            const charCount = outputText.length;
+            const sec = Math.round(charCount / 3); // 中文口语大约3字/秒
+            const min = Math.floor(sec /60);
+            const remainSec = sec % 60;
+            timeEstimate.innerText = `约${min>0?min+"分":""}${remainSec}秒`;
         }
 
-        // 获取翻译后的关键词，无匹配则返回概括词
-        function getTransKeyword(cnKw, lang) {
-            if(keywordDict[cnKw]){
-                return keywordDict[cnKw][lang];
-            }
-            if(lang === "ru") return "Размышления";
-            if(lang === "en") return "Reflections";
-            return cnKw;
+        tagBlock.style.display = "block";
+        const tagDict = {
+            xiaohongshu:"#小红书 #种草 #生活分享",
+            dry:"#干货 #知识分享 #学习笔记",
+            vlog:"#vlog #自媒体 #口播分享",
+            vk:"#блог #контент #соцсети",
+            ins:"#contentcreator #vlog #lifestyle"
         }
+        tagContent.innerText = tagDict[style];
+    }
 
-        // 简易中文句子概括为对应语种短句（纯模板模拟，无翻译API）
-        function getSummaryText(rawText, lang){
-            if(lang === "ru"){
-                return "Делюсь своими впечатлениями и мыслями на эту тему.";
-            }else if(lang === "en"){
-                return "Sharing my thoughts and feelings on this topic.";
-            }
-            return rawText;
+    document.getElementById('clear-btn').onclick = ()=>{
+        document.getElementById('input-text').value = "";
+        resultArea.innerText = "预览结果将展示在这里";
+        tagBlock.style.display = "none";
+        document.getElementById('feedback-text').value = "";
+    }
+    document.getElementById('copy-btn').onclick = async ()=>{
+        await navigator.clipboard.writeText(resultArea.innerText);
+        alert("复制成功！");
+    }
+    document.getElementById('submit-feedback').onclick = ()=>{
+        const fbText = document.getElementById('feedback-text').value.trim();
+        if(!fbText){
+            alert("请输入你的修改意见");
+            return;
         }
-
-        // 给关键词增加高亮标签
-        function highlightKeyword(text, kw) {
-            if(!kw) return text;
-            return text.replaceAll(kw, `<span class="highlight-word">${kw}</span>`);
-        }
-
-        // 读取本地历史记录
-        function loadHistory() {
-            const raw = localStorage.getItem("styleDemoHistory");
-            return raw ? JSON.parse(raw) : [];
-        }
-        // 保存历史记录
-        function saveHistory(arr) {
-            localStorage.setItem("styleDemoHistory", JSON.stringify(arr));
-        }
-        // 渲染历史面板
-        function renderHistory() {
-            const box = document.getElementById("historyBox");
-            const history = loadHistory();
-            if(history.length ===0){
-                box.innerHTML = "<div style='color:#718096'>暂无历史记录，生成文案后会保存在这里</div>";
-                return;
-            }
-            let html = "";
-            history.forEach((item,idx)=>{
-                html += `<div class="history-item" onclick="loadHistoryItem(${idx})">
-                <div style="font-weight:500">${item.styleName}｜${item.lenName}｜${item.strName}</div>
-                <div style="font-size:14px;color:#4a5568;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.origin}</div>
-                </div>`
-            })
-            box.innerHTML = html;
-        }
-        // 点击历史记录回填表单
-        window.loadHistoryItem = function(idx){
-            const history = loadHistory();
-            const item = history[idx];
-            document.getElementById("inputText").value = item.origin;
-            document.getElementById("styleSelect").value = item.style;
-            document.getElementById("strengthSlider").value = item.strength;
-            document.querySelector(`input[name="lenType"][value="${item.len}"]`).checked = true;
-        }
-
-        // 生成预览主函数
-        function generatePreview(){
-            const rawText = document.getElementById("inputText").value.trim();
-            const styleKey = document.getElementById("styleSelect").value;
-            const strengthVal = Number(document.getElementById("strengthSlider").value);
-            const lenVal = document.querySelector('input[name="lenType"]:checked').value;
-            const resultDom = document.getElementById("resultArea");
-
-            if(!rawText){
-                resultDom.innerText = "请先在上方输入框粘贴文案";
-                return;
-            }
-            // 假loading
-            resultDom.classList.add("loading");
-            setTimeout(()=>{
-                resultDom.classList.remove("loading");
-                const cnKw = extractKeyword(rawText);
-                let templateKw, subTextRu, subTextEn;
-
-                if(styleKey === "vk"){
-                    templateKw = getTransKeyword(cnKw, "ru");
-                    subTextRu = getSummaryText(rawText, "ru");
-                }else if(styleKey === "ins"){
-                    templateKw = getTransKeyword(cnKw, "en");
-                    subTextEn = getSummaryText(rawText, "en");
-                }else{
-                    templateKw = cnKw;
-                }
-
-                const templateList = styleTemplates[styleKey][lenVal];
-                const template = templateList[strengthVal];
-                let output = template
-                    .replaceAll("{kw}", templateKw)
-                    .replaceAll("{text}", rawText)
-                    .replaceAll("{textRu}", subTextRu)
-                    .replaceAll("{textEn}", subTextEn);
-
-                output = highlightKeyword(output, templateKw);
-                resultDom.innerHTML = output;
-
-                // 写入历史记录，最多保存5条
-                const history = loadHistory();
-                history.unshift({
-                    origin: rawText,
-                    style: styleKey,
-                    styleName: document.getElementById("styleSelect").options[document.getElementById("styleSelect").selectedIndex].text,
-                    strength: strengthVal,
-                    strName: strengthMap[strengthVal],
-                    len: lenVal,
-                    lenName: lenVal==="short"?"短句版": lenVal==="normal"?"常规版":"加长叙事版"
-                })
-                if(history.length>5) history.pop();
-                saveHistory(history);
-                renderHistory();
-            }, 600);
-        }
-
-        // 清空输入框
-        function clearInput(){
-            document.getElementById("inputText").value = "";
-        }
-        // 复制结果
-        function copyResult(){
-            const text = document.getElementById("resultArea").innerText;
-            navigator.clipboard.writeText(text).then(()=>{
-                const toast = document.getElementById("toast");
-                toast.classList.add("show");
-                setTimeout(()=>toast.classList.remove("show"),2200);
-            })
-        }
-
-        // 页面加载初始化
-        renderHistory();
-    </script>
+        alert("✅ 反馈已记录（静态演示版，暂未持久化）");
+    }
+</script>
 </body>
 </html>
