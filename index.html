@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio｜跨文化AIGC内容作品集</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #f3f4f6; color: #1f2937; padding: 30px 15px; }
+        .container { max-width: 860px; margin: 0 auto; }
+        .card { background: #ffffff; border-radius: 18px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 20px; }
+        .title-card { text-align: center; }
+        .title-card h1 { font-size: 26px; color: #1f2937; margin: 0 0 10px; }
+        .title-card .sub { color: #4b5563; font-size: 14px; line-height: 1.7; }
+        .badge { display: inline-block; background: #6366f1; color: #fff; font-size: 12px; padding: 4px 14px; border-radius: 999px; margin-bottom: 12px; }
+        .section-title { font-size: 18px; font-weight: bold; color: #1f2937; margin-bottom: 14px; padding-left: 10px; border-left: 4px solid #6366f1; }
+        .tag-block { background: #eff6ff; border-radius: 12px; padding: 16px; }
+        .tag-title { font-weight: bold; color: #1e40af; font-size: 15px; margin-bottom: 8px; }
+        .tag-block ol { margin: 6px 0 0 18px; color: #374151; font-size: 14px; line-height: 1.9; }
+        .project-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        @media (min-width: 720px) { .project-grid { grid-template-columns: 1fr 1fr; } }
+        .project-card { border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; background: #fff; }
+        .project-card img { width: 100%; display: block; max-height: 320px; object-fit: cover; object-position: top; background: #f9fafb; }
+        .project-body { padding: 16px 18px; }
+        .project-body h3 { font-size: 16px; margin-bottom: 8px; }
+        .project-body p { color: #4b5563; font-size: 14px; line-height: 1.7; margin-bottom: 12px; }
+        .status-pill { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 999px; margin-bottom: 12px; }
+        .pill-ok { background: #f0fdf4; color: #15803d; }
+        .pill-wip { background: #fffbeb; color: #b45309; }
+        .btn { display: inline-block; padding: 9px 18px; background: #6366f1; color: #fff; border-radius: 8px; text-decoration: none; font-size: 14px; }
+        .btn:hover { opacity: 0.88; }
+        .btn-ghost { display: inline-block; padding: 9px 18px; background: #e5e7eb; color: #1f2937; border-radius: 8px; text-decoration: none; font-size: 14px; margin-left: 8px; }
+        .btn-ghost:hover { background: #d1d5db; }
+        .text { color: #374151; font-size: 14px; line-height: 1.9; }
+        .skills { list-style: none; }
+        .skills li { margin-bottom: 10px; color: #374151; font-size: 14px; line-height: 1.7; padding-left: 22px; position: relative; }
+        .skills li::before { content: '◆'; position: absolute; left: 2px; top: 5px; color: #6366f1; font-size: 10px; }
+        .contact p { color: #4b5563; font-size: 14px; line-height: 1.9; }
+        .contact a { color: #6366f1; text-decoration: none; }
+        .license { text-align: center; color: #9ca3af; font-size: 12px; padding: 4px 0 14px; }
+        .mt { margin-top: 12px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="card title-card">
+        <div><span class="badge">俄语 + 新闻学硕士</span></div>
+        <h1>Portfolio｜跨文化AIGC内容作品集</h1>
+        <p class="sub">求职方向：出海跨境电商 · 俄语区海外社媒运营 · 全球化内容运营</p>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">重要说明</h2>
+        <div class="tag-block">
+            <div class="tag-title">⚠️ 运行说明（必读）</div>
+            <ol>
+                <li>「本地文案工作台」完整后端（Flask + Ollama Qwen2.5-7b）仅能本地电脑运行；GitHub Pages 仅部署静态前端页面，网页上无法调用大模型执行文案生成，仅可预览 UI 交互界面。</li>
+                <li>所有 Python 后端脚本、backend 文件夹没有上传到本仓库。</li>
+                <li>第二个作品「文学叙事意象四象限测试」属于未完迭代版本（完成约 40%）。</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">项目列表</h2>
+        <div class="project-grid">
+            <div class="project-card">
+                <img src="./assets/images/copy-studio-01.png" alt="本地文案工作台界面截图">
+                <div class="project-body">
+                    <h3>本地文案工作台</h3>
+                    <p>多平台多语言 AI 社媒文案改写原型，支持小红书 / 抖音 / Instagram / YouTube 等风格，本地 Ollama 大模型驱动。</p>
+                    <span class="status-pill pill-ok">可用原型 · 仅前端可在线预览</span><br>
+                    <a class="btn" href="./text-style-preview/b-preview/index.html">打开页面</a>
+                    <a class="btn-ghost" href="./text-style-preview/ai-text-preview/index.html">早期版本</a>
+                </div>
+            </div>
+            <div class="project-card">
+                <img src="./assets/images/perception-demo.png" alt="文学叙事意象四象限测试截图">
+                <div class="project-body">
+                    <h3>文学叙事意象四象限测试</h3>
+                    <p>阅读审美偏好测评，2D 四象限测评 + 文学意象卡片，纯静态前端。</p>
+                    <span class="status-pill pill-wip">🚧 40% 未完迭代</span><br>
+                    <a class="btn" href="./text-perception-quadrant/index.html">打开页面</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">完整求职作品集</h2>
+        <p class="text">更完整的个人背景、项目复盘、技能清单与免责声明，见作品集文档。</p>
+        <div class="mt"><a class="btn" href="./portfolio-index.md">查看完整作品集</a></div>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">个人背景</h2>
+        <p class="text">俄语 + 新闻学硕士；俄语专四专八、英语六级；2 年俄罗斯孔子学院海外任教经历，熟悉 VK 俄语社媒本土语境；具备记者、内容运营实习经历。</p>
+        <p class="text mt">擅长跨文化内容本地化，探索 AIGC 赋能出海多语言内容生产。</p>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">技能清单</h2>
+        <ul class="skills">
+            <li>语言：俄语专四专八、英语六级；中文深度文案、内容策划</li>
+            <li>AIGC：提示词工程、多语言 AI 内容生产、Ollama 本地大模型调用</li>
+            <li>工具：Vibe Coding、Flask（本地）、原生 HTML / JS、Canva、剪映</li>
+            <li>行业认知：VK 俄语社媒生态、内容选题、文案本地化、内容数据复盘</li>
+        </ul>
+    </div>
+
+    <div class="card contact">
+        <h2 class="section-title">联系方式</h2>
+        <p>公开仓库，暂不公开联系方式。</p>
+        <p>GitHub：<a href="https://github.com/findafinejobnow" target="_blank" rel="noopener">https://github.com/findafinejobnow</a></p>
+    </div>
+
+    <div class="license">本仓库所有 Demo 为个人学习求职演示项目。</div>
+
+</div>
+</body>
+</html>
