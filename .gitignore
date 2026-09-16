@@ -1,0 +1,11 @@
+# Python 后端与本地配置（不推送到公开仓库）
+*.py
+__pycache__/
+backend/
+.env
+*.env
+
+# 系统与编辑器缓存
+.DS_Store
+Thumbs.db
+.vscode/

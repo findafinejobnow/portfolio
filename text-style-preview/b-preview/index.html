@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>本地文案工作台｜Qwen2.5 Ollama</title>
+<style>
+  :root{
+    --morandi-blue:#8FA4B8;
+    --morandi-blue-strong:#6E879E;
+    --morandi-green:#8FAE9E;
+    --morandi-green-strong:#6E9483;
+    --morandi-beige:#C7BEB0;
+    --morandi-gray:#A8A29E;
+    --morandi-red:#C0847C;
+    --morandi-bg:#F4F2EE;
+    --morandi-card:#FFFFFF;
+    --morandi-text:#3F444A;
+    --morandi-muted:#7A7F85;
+    --morandi-line:#DDD8D2;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    background:
+      radial-gradient(circle at 12% 12%, #E8E4DD 0 10%, transparent 22%),
+      radial-gradient(circle at 88% 8%, #E1E7EA 0 12%, transparent 24%),
+      linear-gradient(180deg,#F5F3EF 0%, #EFEDE8 100%);
+    color:var(--morandi-text);
+  }
+  .app{
+    max-width:1400px;
+    margin:0 auto;
+    padding:28px 24px 40px;
+  }
+  header.topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:24px;
+  }
+  h1{
+    font-size:24px;
+    margin:0;
+    font-weight:600;
+    letter-spacing:.3px;
+    color:#2F353B;
+  }
+  .subtitle{
+    color:var(--morandi-muted);
+    font-size:13px;
+    margin-top:4px;
+  }
+  .row{
+    display:grid;
+    grid-template-columns: 340px 1fr 300px;
+    gap:20px;
+    align-items:start;
+  }
+  .card{
+    background:var(--morandi-card);
+    border:1px solid var(--morandi-line);
+    border-radius:22px;
+    padding:20px;
+    box-shadow:0 10px 30px rgba(80,90,100,.08);
+  }
+  .card h2{
+    font-size:15px;
+    margin:0 0 14px;
+    font-weight:600;
+    color:#2F353B;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card h2 .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--morandi-blue);
+  }
+  .form-item{margin-bottom:16px}
+  label{
+    display:block;
+    font-size:13px;
+    color:var(--morandi-muted);
+    margin-bottom:8px;
+    font-weight:500;
+  }
+  select,textarea,input[type="text"]{
+    width:100%;
+    border:1px solid var(--morandi-line);
+    border-radius:12px;
+    background:#FBFAF7 !important;
+    color:var(--morandi-text);
+    padding:11px 13px;
+    font-size:14px;
+    outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  select:focus,textarea:focus,input[type="text"]:focus{
+    border-color:var(--morandi-blue);
+    box-shadow:0 0 0 3px rgba(143,164,184,.25);
+  }
+  textarea{
+    min-height:120px;
+    resize:vertical;
+    line-height:1.6;
+  }
+  .times-new-roman{
+    font-family:"Times New Roman", Times, serif !important;
+    font-size:15px;
+  }
+  .platform-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+  }
+  .platform-btn{
+    border:1px solid var(--morandi-line);
+    background:#FBFAF7;
+    border-radius:14px;
+    padding:10px 6px;
+    cursor:pointer;
+    font-size:12px;
+    color:var(--morandi-text);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    transition:all .2s;
+  }
+  .platform-btn:hover{transform:translateY(-2px)}
+  .platform-btn.active{
+    background:#E8EEF3;
+    border-color:var(--morandi-blue);
+    color:var(--morandi-blue-strong);
+    font-weight:600;
+  }
+  .platform-btn svg{
+    width:32px;
+    height:32px;
+  }
+  .slider-wrap{
+    display:flex;align-items:center;gap:12px;
+  }
+  input[type="range"]{
+    flex:1;
+    accent-color:var(--morandi-blue);
+    height:4px;
+  }
+  .len-label{
+    min-width:110px;
+    text-align:right;
+    font-size:13px;
+    color:var(--morandi-muted);
+  }
+  .btn-row{
+    display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;
+  }
+  button{
+    border:none;
+    border-radius:12px;
+    padding:11px 16px;
+    font-size:14px;
+    cursor:pointer;
+    font-weight:500;
+    color:white;
+    transition:all .2s;
+  }
+  button:hover{transform:translateY(-1px);filter:saturate(1.05)}
+  button:disabled{cursor:not-allowed;opacity:.6}
+  .btn-primary{background:var(--morandi-blue-strong)}
+  .btn-success{background:var(--morandi-green-strong)}
+  .btn-ghost{
+    background:transparent;
+    color:var(--morandi-text);
+    border:1px solid var(--morandi-line);
+  }
+  .btn-danger{background:#C0847C}
+  .tip{
+    font-size:12px;
+    color:var(--morandi-muted);
+    margin-top:10px;
+  }
+  .checkbox-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    margin-bottom:16px;
+  }
+  .mascot-card{
+    position:fixed;
+    top:20px;
+    right:20px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:var(--morandi-card);
+    border:1px solid var(--morandi-line);
+    border-radius:20px;
+    padding:16px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.08);
+    z-index:99;
+  }
+  .mascot{
+    width:52px;height:52px;border-radius:50%;
+    background:#E4EAF0;
+    display:grid;place-items:center;
+    font-size:26px;
+    position:relative;
+    flex-shrink:0;
+  }
+  .mascot.busy{animation:bounce .6s infinite alternate}
+  @keyframes bounce{to{transform:translateY(-4px)}}
+  .mascot-text{font-size:13px;color:var(--morandi-muted);line-height:1.5}
+  .mascot-text b{color:var(--morandi-text)}
+  .output-head{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:10px;
+  }
+  .output-status{
+    font-size:12px;
+    color:var(--morandi-muted);
+    display:flex;align-items:center;gap:8px;
+  }
+  .status-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--morandi-green);
+  }
+  .status-dot.busy{background:var(--morandi-beige);animation:pulse 1s infinite}
+  .status-dot.err{background:var(--morandi-red)}
+  @keyframes pulse{50%{opacity:.4}}
+  #resultOutput{
+    width:100%;
+    min-height:420px;
+    background:#FBFAF7;
+    border:1px solid var(--morandi-line);
+    border-radius:18px;
+    padding:18px;
+    font-size:15px;
+    line-height:1.7;
+    color:var(--morandi-text);
+  }
+  .translate-preview{
+    margin-top:12px;
+    border:1px dashed var(--morandi-line);
+    border-radius:14px;
+    padding:14px;
+    background:#F9F7F4;
+  }
+  .translate-preview h4{
+    margin:0 0 8px;
+    font-size:13px;
+    color:var(--morandi-muted);
+  }
+  #translateText{
+    font-size:14px;
+    line-height:1.6;
+    color:var(--morandi-text);
+  }
+  .style-pill-row-right{
+    display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;
+  }
+  .style-pill-right{
+    background:#FBFAF7;
+    border:1px solid var(--morandi-line);
+    border-radius:999px;
+    padding:7px 12px;
+    font-size:12px;
+    cursor:pointer;
+    color:var(--morandi-text);
+    display:inline-flex;align-items:center;gap:6px;
+    transition:all .2s;
+  }
+  .style-pill-right:hover{border-color:var(--morandi-blue)}
+  .style-pill-right .x{
+    color:var(--morandi-red);
+    font-weight:700;
+  }
+  .history-item{
+    background:#FBFAF7;
+    border:1px solid var(--morandi-line);
+    border-radius:14px;
+    padding:12px;
+    margin-bottom:10px;
+    cursor:pointer;
+    transition:all .2s;
+  }
+  .history-item:hover{
+    border-color:var(--morandi-blue);
+    transform:translateY(-1px);
+  }
+  .history-item .t{
+    font-size:13px;
+    color:var(--morandi-text);
+    margin-bottom:6px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .history-item .meta{
+    font-size:11px;
+    color:var(--morandi-muted);
+    display:flex;justify-content:space-between;
+  }
+  @media (max-width: 1100px){
+    .row{grid-template-columns:1fr}
+    #resultOutput{min-height:320px}
+    .mascot-card{position:static;margin-bottom:20px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div>
+      <h1>本地文案工作台</h1>
+      <div class="subtitle">Local Copy Studio · Qwen2.5 Ollama</div>
+    </div>
+    <div class="mascot-card" id="mascotCard">
+      <div class="mascot" id="mascot">🙂</div>
+      <div class="mascot-text" id="mascotText">
+        <b>Hi！我是你的本地文案助手。</b><br />
+        选择平台、语言和长度，开始改写吧。
+      </div>
+    </div>
+  </header>
+  <div class="row">
+    <!-- 左：输入 -->
+    <div class="card">
+      <h2><span class="dot"></span>输入设置</h2>
+      <div class="form-item">
+        <label>多平台风格</label>
+        <div class="platform-grid">
+          <button class="platform-btn" data-platform="xiaohongshu">
+             <svg viewBox="0 0 48 48" width="32" height="32">
+                 <rect x="4" y="4" width="40" height="40" rx="10" fill="#ff2442"/>
+                 <path d="M17.5 14h6.2c2.6 0 4.6.8 6 2.2 1.4 1.4 2.1 3.4 2.1 6 0 2.6-.7 4.6-2.1 6-1.4 1.4-3.4 2.2-6 2.2h-6.2c-2.6 0-4.6-.8-6-2.2-1.4-1.4-2.1-3.4-2.1-6 0-2.6.7-4.6 2.1-6 1.4-1.4 3.4-2.2 6-2.2zm3.1 4.8c-.9 0-1.6.3-2.2.9-.6.6-.9 1.3-.9 2.2 0 .9.3 1.6.9 2.2.6.6 1.3.9 2.2.9.9 0 1.6-.3 2.2-.9.6-.6.9-1.3.9-2.2 0-.9-.3-1.6-.9-2.2-.6-.6-1.3-.9-2.2-.9zm6.3 0c-.9 0-1.6.3-2.2.9-.6.6-.9 1.3-.9 2.2 0 .9.3 1.6.9 2.2.6.6 1.3.9 2.2.9.9 0 1.6-.3 2.2-.9.6-.6.9-1.3.9-2.2 0-.9-.3-1.6-.9-2.2-.6-.6-1.3-.9-2.2-.9z" fill="#ffffff"/>
+                 <path d="M13 30.5h22v3h-22z" fill="#ffffff"/>
+               </svg>
+               <span>小红书</span>
+          </button>
+
+          </button>
+          <button class="platform-btn" data-platform="douyin">
+            <svg viewBox="0 0 24 24" fill="#000000"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.68a6.34 6.34 0 0010.8-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/></svg>
+            <span>抖音</span>
+          </button>
+          <button class="platform-btn" data-platform="instagram">
+            <svg viewBox="0 0 24 24" fill="url(#iggrad)"><defs><linearGradient id="iggrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="0.25" stop-color="#e6683c"/><stop offset="0.5" stop-color="#dc2743"/><stop offset="0.75" stop-color="#cc2366"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            <span>Instagram</span>
+          </button>
+          <button class="platform-btn" data-platform="youtube">
+            <svg viewBox="0 0 24 24" fill="#ff0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span>YouTube</span>
+          </button>
+        </div>
+      </div>
+      <div class="form-item">
+        <label>输出语言</label>
+        <select id="langSelect">
+          <option value="最终输出全部使用中文。" selected>汉语</option>
+          <option value="最终输出全部使用英语，不要中文。">English</option>
+          <option value="最终输出全部使用俄语，不要中文。">Русский</option>
+        </select>
+      </div>
+      <div class="form-item">
+        <label>生成文本长度：<span id="lenLabel">中等（约250字）</span></label>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="3" value="2" id="lenSlider" />
+          <div class="len-label" id="lenTip">简短｜中等｜长篇</div>
+        </div>
+      </div>
+      <div class="form-item">
+        <label>改写指令</label>
+        <textarea id="promptInput" placeholder="例如：改成小红书Vlog口播文案，自然、有活人感"></textarea>
+        <div class="btn-row">
+          <button class="btn-ghost" id="saveStyleBtn">保存当前文风</button>
+          <button class="btn-ghost" id="clearStyleBtn">清空偏好</button>
+        </div>
+        <div class="tip" id="leftStyleTip">已保存文风将在右侧文风库中以关键词展示</div>
+      </div>
+      <div class="checkbox-item">
+        <input type="checkbox" id="checkComplianceHook">
+        <label for="checkComplianceHook">开启文案合规 & 钩子检测</label>
+      </div>
+
+      <div class="form-item">
+        <label>原始文本</label>
+        <textarea id="textInput" placeholder="粘贴需要改写的原文"></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" id="submitBtn">提交生成</button>
+        <button class="btn-ghost" id="clearAllBtn">清空全部</button>
+      </div>
+      <div class="tip">本地后端：http://127.0.0.1:5000</div>
+    </div>
+    <!-- 中：输出 -->
+    <div class="card">
+      <div class="output-head">
+        <h2><span class="dot"></span>AI 输出结果</h2>
+        <div class="output-status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">就绪</span>
+        </div>
+      </div>
+      <textarea id="resultOutput" readonly placeholder="生成结果将显示在这里..."></textarea>
+      <div class="translate-preview" id="translateWrap" style="display:none">
+        <h4>📖 中文翻译预览（仅参考，复制不会带这段）</h4>
+        <div id="translateText"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-success" id="copyBtn">复制新文本</button>
+      </div>
+    </div>
+    <!-- 右：文风库 + 历史记录 -->
+    <div class="card">
+      <h2><span class="dot"></span>文风库</h2>
+      <div class="style-pill-row-right" id="rightStyleLibrary"></div>
+      <h2 style="margin-top:24px;"><span class="dot"></span>历史记录</h2>
+      <div id="historyList"></div>
+      <div class="tip" id="historyTip">自动保存，最多保留20条、仅保留7天内记录</div>
+    </div>
+  </div>
+</div>
+<script>
+  const platformConfig = {
+    xiaohongshu: {
+      name: "小红书",
+      prompt: "把这段文字改成小红书风格文案，语气亲切、有生活感，善用emoji，突出个人体验和种草感。",
+      len: 2
+    },
+    douyin: {
+      name: "抖音",
+      prompt: "把这段文字改成抖音口播文案，开头抓人，节奏快，适合短视频表达。",
+      len: 1
+    },
+    instagram: {
+      name: "Instagram",
+      prompt: "把这段文字改成Instagram风格文案，视觉化描述，轻松有态度，适当使用emoji。",
+      len: 2
+    },
+    youtube: {
+      name: "YouTube",
+      prompt: "把这段文字改成YouTube视频vlog文案，表达自然亲切，有爆点，有开场钩子和结尾升华。",
+      len: 3
+    }
+  };
+  const lenConfig = {
+    1: { label: "简短（约80字）", tip: "文案简短精炼。" },
+    2: { label: "中等（约250字）", tip: "常规短视频文案长度。" },
+    3: { label: "长篇（约600字）", tip: "详细展开表达。" }
+  };
+  const els = {
+    platformBtns: document.querySelectorAll(".platform-btn"),
+    langSelect: document.getElementById("langSelect"),
+    lenSlider: document.getElementById("lenSlider"),
+    lenLabel: document.getElementById("lenLabel"),
+    lenTip: document.getElementById("lenTip"),
+    promptInput: document.getElementById("promptInput"),
+    textInput: document.getElementById("textInput"),
+    resultOutput: document.getElementById("resultOutput"),
+    translateWrap: document.getElementById("translateWrap"),
+    translateText: document.getElementById("translateText"),
+    submitBtn: document.getElementById("submitBtn"),
+    copyBtn: document.getElementById("copyBtn"),
+    clearAllBtn: document.getElementById("clearAllBtn"),
+    saveStyleBtn: document.getElementById("saveStyleBtn"),
+    clearStyleBtn: document.getElementById("clearStyleBtn"),
+    rightStyleLibrary: document.getElementById("rightStyleLibrary"),
+    historyList: document.getElementById("historyList"),
+    historyTip: document.getElementById("historyTip"),
+    mascot: document.getElementById("mascot"),
+    mascotText: document.getElementById("mascotText"),
+    statusDot: document.getElementById("statusDot"),
+    statusText: document.getElementById("statusText"),
+    checkComplianceHook: document.getElementById("checkComplianceHook")
+  };
+  let currentPlatform = null;
+  function updateLengthUI() {
+    const v = els.lenSlider.value;
+    els.lenLabel.textContent = lenConfig[v].label;
+  }
+  function setMascot(state, text) {
+    if (state === "busy") {
+      els.mascot.textContent = "⏳";
+      els.mascot.classList.add("busy");
+      els.statusDot.classList.add("busy");
+      els.statusDot.classList.remove("err");
+      els.statusText.textContent = "生成中...";
+    } else if (state === "success") {
+      els.mascot.textContent = "🙂";
+      els.mascot.classList.remove("busy");
+      els.statusDot.classList.remove("busy", "err");
+      els.statusText.textContent = "完成";
+    } else if (state === "error") {
+      els.mascot.textContent = "😵";
+      els.mascot.classList.remove("busy");
+      els.statusDot.classList.add("err");
+      els.statusText.textContent = "出错";
+    } else {
+      els.mascot.textContent = "🙂";
+      els.mascot.classList.remove("busy");
+      els.statusDot.classList.remove("busy", "err");
+      els.statusText.textContent = "就绪";
+    }
+    if (text) els.mascotText.innerHTML = text;
+  }
+
+  // 清洗markdown符号：** # - *
+  function cleanMarkdownSymbols(text){
+    let s = text.replace(/\*\*/g,"");
+    s = s.replace(/^#+\s*/gm,""); //去除行首#标题
+    s = s.replace(/^-\s*/gm,""); //去除行首-列表标记
+    s = s.replace(/^\*\s*/gm,""); //去除行首*列表标记
+    return s.trim();
+  }
+
+  // 【工具函数】拆分文案和检测报告，返回纯净文案（不含报告）
+  function splitContentAndReport(fullText) {
+    const reportMarkers = [
+      "**Hook Analysis Report:**",
+      "**吸引力报告：**",
+      "Hook Analysis Report:",
+      "吸引力报告："
+    ];
+    let splitIndex = -1;
+    for(const marker of reportMarkers){
+      const idx = fullText.indexOf(marker);
+      if(idx !== -1){
+        splitIndex = idx;
+        break;
+      }
+    }
+    if(splitIndex > 0){
+      return {
+        pureCopyText: cleanMarkdownSymbols(fullText.substring(0, splitIndex).trim()),
+        fullResult: cleanMarkdownSymbols(fullText)
+      }
+    }
+    return {
+      pureCopyText: cleanMarkdownSymbols(fullText.trim()),
+      fullResult: cleanMarkdownSymbols(fullText.trim())
+    }
+  }
+
+  // 平台选择
+  els.platformBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const p = btn.dataset.platform;
+      if (currentPlatform === p) {
+        currentPlatform = null;
+        btn.classList.remove("active");
+        return;
+      }
+      els.platformBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentPlatform = p;
+      const cfg = platformConfig[p];
+      els.promptInput.value = cfg.prompt;
+      els.lenSlider.value = cfg.len;
+      updateLengthUI();
+      setMascot("success", `<b>已切换到 ${cfg.name} 风格。</b><br />已自动填充指令并匹配长度。`);
+    });
+  });
+  // 长度变化
+  els.lenSlider.addEventListener("input", updateLengthUI);
+  updateLengthUI();
+
+  // 自动保存历史：历史预览改为生成文案摘要，不再存prompt预览
+  function autoSaveHistory(prompt,text,result,lang,len,lenLabel,platform){
+    const list = loadHistory();
+    const record = {
+      prompt,
+      text,
+      result,
+      lang,
+      len,
+      lenLabel,
+      platform,
+      time: new Date().toLocaleTimeString("zh-CN", { hour12: false }),
+      timestamp: Date.now()
+    };
+    list.unshift(record);
+    const sevenDay = 7*24*60*60*1000;
+    const now = Date.now();
+    const filtered = list.filter(item => now - item.timestamp < sevenDay).slice(0,20);
+    saveHistory(filtered);
+    renderHistory();
+  }
+  // 提交生成
+  els.submitBtn.addEventListener("click", async () => {
+    const prompt = els.promptInput.value.trim();
+    const text = els.textInput.value.trim();
+    if (!prompt || !text) {
+      alert("请填写改写指令和原始文本");
+      return;
+    }
+    els.translateWrap.style.display = "none";
+    els.translateText.innerText = "";
+    let fullPrompt = `${prompt}。${lenConfig[els.lenSlider.value].tip}${els.langSelect.value}`;
+    if(els.checkComplianceHook.checked){
+      fullPrompt += " 额外任务：检查文案的钩子吸引力，识别平台禁忌词，在结果末尾输出检测报告；输出不要使用#、-、*、**等markdown标记。";
+    }
+
+    els.resultOutput.value = "";
+    const langValue = els.langSelect.value;
+    if(langValue.includes("英语") || langValue.includes("俄语")){
+      els.resultOutput.classList.add("times-new-roman");
+    }else{
+      els.resultOutput.classList.remove("times-new-roman");
+    }
+    els.submitBtn.disabled = true;
+    setMascot("busy", "<b>正在调用本地模型...</b><br />耐心等待，Qwen正在为你改写。");
+    try {
+      const resp = await fetch("http://127.0.0.1:5000/api/rewrite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: fullPrompt, text })
+      });
+      const data = await resp.json();
+      if (data.result) {
+        const splitRes = splitContentAndReport(data.result);
+        els.resultOutput.value = splitRes.fullResult;
+        setMascot("success", "<b>生成成功！</b><br />可以复制新文本。");
+        autoSaveHistory(
+          prompt,
+          text,
+          splitRes.fullResult,
+          els.langSelect.value,
+          els.lenSlider.value,
+          lenConfig[els.lenSlider.value].label,
+          currentPlatform ? platformConfig[currentPlatform].name : "未选平台"
+        );
+        const lang = els.langSelect.value;
+        if(lang.includes("英语") || lang.includes("俄语")){
+          try{
+            const transResp = await fetch("http://127.0.0.1:5000/api/translate",{
+              method:"POST",
+              headers:{"Content-Type":"application/json"},
+              body:JSON.stringify({content:splitRes.pureCopyText})
+            })
+            const transData = await transResp.json();
+            if(transData.cn){
+              els.translateText.innerText = cleanMarkdownSymbols(transData.cn);
+              els.translateWrap.style.display = "block";
+            }
+          }catch(e){
+            console.log("翻译接口未启用");
+          }
+        }
+      } else {
+        els.resultOutput.value = "模型未返回有效结果。";
+        setMascot("error", "<b>没有收到有效结果。</b><br />请检查后端和模型状态。");
+      }
+    } catch (err) {
+      els.resultOutput.value = "请求失败，请确认后端 app.py 正在运行。";
+      setMascot("error", "<b>请求失败。</b><br />请检查本地后端是否启动。");
+    } finally {
+      els.submitBtn.disabled = false;
+    }
+  });
+  // 复制按钮：只复制纯净文案，剔除检测报告！
+  els.copyBtn.addEventListener("click", async () => {
+    if (!els.resultOutput.value) {
+      alert("暂无输出内容");
+      return;
+    }
+    const splitRes = splitContentAndReport(els.resultOutput.value);
+    await navigator.clipboard.writeText(splitRes.pureCopyText);
+    setMascot("success", "<b>✅ 仅主文案已复制到剪贴板（不含检测报告）。</b>");
+  });
+  // 清空全部
+  els.clearAllBtn.addEventListener("click", () => {
+    els.promptInput.value = "";
+    els.textInput.value = "";
+    els.resultOutput.value = "";
+    els.translateWrap.style.display="none";
+    els.langSelect.selectedIndex = 0;
+    els.lenSlider.value = 2;
+    els.checkComplianceHook.checked = false;
+    updateLengthUI();
+    els.platformBtns.forEach(b => b.classList.remove("active"));
+    currentPlatform = null;
+    els.resultOutput.classList.remove("times-new-roman");
+    setMascot("success", "<b>已清空。</b><br />重新开始一次改写吧。");
+  });
+
+  // ==========文风库存储：每条保存原始prompt + ai提炼短标签============
+  function loadStyles() {
+    try { return JSON.parse(localStorage.getItem("copy_styles") || "[]"); }
+    catch { return []; }
+  }
+  function saveStyles(list) {
+    localStorage.setItem("copy_styles", JSON.stringify(list));
+  }
+
+  els.saveStyleBtn.addEventListener("click", async () => {
+    const promptText = els.promptInput.value.trim();
+    if (!promptText) {
+      alert("请先填写改写指令");
+      return;
+    }
+    const list = loadStyles();
+    if (list.some(s => s.prompt === promptText)) {
+      alert("该文风已存在");
+      return;
+    }
+    setMascot("busy","<b>AI正在提炼文风关键词...</b>");
+    try{
+      const resp = await fetch("http://127.0.0.1:5000/api/extract-style",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({prompt: promptText})
+      });
+      const resJson = await resp.json();
+      if(resJson.code !==200){
+        setMascot("error",`<b>提取失败：${resJson.msg}</b>`);
+        return;
+      }
+      const aiTag = resJson.data.trim();
+      list.push({
+        prompt: promptText,
+        aiTag: aiTag
+      });
+      saveStyles(list);
+      renderRightStyles();
+      setMascot("success",`<b>已保存文风</b><br/>标签：${aiTag}`);
+    }catch(err){
+      setMascot("error","<b>网络异常，请确认后端app.py已启动</b>");
+      console.error(err);
+    }
+  });
+
+  els.clearStyleBtn.addEventListener("click", () => {
+    if (!loadStyles().length) return;
+    if (confirm("确定清空全部保存的文风偏好？")) {
+      saveStyles([]);
+      renderRightStyles();
+      setMascot("success", "<b>已清空文风库。</b>");
+    }
+  });
+
+  function renderRightStyles(){
+    els.rightStyleLibrary.innerHTML = "";
+    const list = loadStyles();
+    if(!list.length){
+      els.rightStyleLibrary.innerHTML = '<span style="font-size:12px;color:var(--morandi-muted)">保存的文风会以关键词展示在这里</span>';
+      return;
+    }
+    list.forEach((s,i)=>{
+      const pill = document.createElement("span");
+      pill.className = "style-pill-right";
+      pill.innerHTML = `
+        ${s.aiTag}
+        <span class="x" data-i="${i}">×</span>`;
+      pill.addEventListener("click",(e)=>{
+        if(e.target.classList.contains("x")){
+          e.stopPropagation();
+          const arr = loadStyles();
+          arr.splice(i,1);
+          saveStyles(arr);
+          renderRightStyles();
+          setMascot("success", "<b>已删除文风。</b>");
+        }else{
+          els.promptInput.value = s.prompt;
+          setMascot("success",`<b>载入文风：${s.aiTag}</b><br/>可继续提交生成。`);
+        }
+      })
+      els.rightStyleLibrary.appendChild(pill);
+    })
+  }
+
+  // 历史记录
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem("copy_history") || "[]"); }
+    catch { return []; }
+  }
+  function saveHistory(list) {
+    localStorage.setItem("copy_history", JSON.stringify(list));
+  }
+  function renderHistory() {
+    els.historyList.innerHTML = "";
+    const list = loadHistory();
+    if (!list.length) {
+      els.historyTip.textContent = "暂无历史记录";
+      return;
+    }
+    els.historyTip.textContent = `共 ${list.length} 条（7天内自动保留）`;
+    list.forEach((h, i) => {
+      const previewText = h.result.substring(0,45).replace(/\n/g," ");
+      const item = document.createElement("div");
+      item.className = "history-item";
+      item.innerHTML = `
+        <div class="t">${previewText}</div>
+        <div class="meta">
+          <span>${h.platform || "未选平台"} · ${h.lenLabel}</span>
+          <span>${h.time}</span>
+        </div>`;
+      item.addEventListener("click", () => {
+        els.promptInput.value = h.prompt;
+        els.textInput.value = h.text;
+        els.resultOutput.value = h.result;
+        els.langSelect.value = h.lang;
+        els.lenSlider.value = h.len;
+        updateLengthUI();
+        if(els.langSelect.value.includes("英语") || els.langSelect.value.includes("俄语")){
+          els.resultOutput.classList.add("times-new-roman");
+        }else{
+          els.resultOutput.classList.remove("times-new-roman");
+        }
+        setMascot("success", `<b>已载入历史记录。</b><br />可继续编辑或重新生成。`);
+      });
+      els.historyList.appendChild(item);
+    });
+  }
+  // 页面启动：自动加载偏好
+  const saved = localStorage.getItem("copy_preference");
+  if (saved) {
+    try {
+      const p = JSON.parse(saved);
+      if (p.prompt) els.promptInput.value = p.prompt;
+      if (p.lang) els.langSelect.value = p.lang;
+      if (p.len) { els.lenSlider.value = p.len; updateLengthUI(); }
+      setMascot("success", "<b>已自动载入上次偏好。</b><br />继续你的工作流吧。");
+    } catch (e) { console.warn(e); }
+  }
+  // 自动保存偏好
+  setInterval(() => {
+    const pref = {
+      prompt: els.promptInput.value,
+      lang: els.langSelect.value,
+      len: els.lenSlider.value
+    };
+    localStorage.setItem("copy_preference", JSON.stringify(pref));
+  }, 2500);
+
+  renderRightStyles();
+  renderHistory();
+</script>
+</body>
+</html>

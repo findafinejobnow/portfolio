@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文本感知象限｜翻阅一份未完稿本</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+:root{
+  --x:0;
+  --y:0;
+  --result-bg:#b794b0;
+  --bg-hue-base:220;
+  --bg-saturate:12%;
+  --bg-light:94%;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  background-color:hsl(calc(var(--bg-hue-base) + var(--x)*0.25), var(--bg-saturate), var(--bg-light));
+  color:#2c2c34;
+  min-height:100vh;
+  transition:background-color 0.6s ease;
+  padding:24px 16px;
+  line-height:1.75;
+}
+body.result-active{
+  background-color:var(--result-bg);
+}
+body.quiz-active{
+  background-color:var(--result-bg);
+}
+.container{
+  max-width:680px;
+  margin:0 auto;
+}
+.page{
+  display:none;
+}
+.page.active{
+  display:block;
+}
+.card{
+  background:rgba(255,255,255,0.72);
+  border-radius:26px;
+  padding:32px 28px;
+  box-shadow:0 2px 14px rgba(0,0,0,0.06);
+  margin-bottom:20px;
+  transition:transform 0.24s ease, box-shadow 0.24s ease;
+}
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 22px rgba(0,0,0,0.1);
+}
+h1{
+  font-size:1.8rem;
+  margin-bottom:16px;
+  font-weight:500;
+}
+h2{
+  font-size:1.3rem;
+  margin:18px 0 10px;
+  font-weight:500;
+}
+.scene-text{
+  font-size:1.05rem;
+  margin-bottom:24px;
+  color:#383842;
+}
+.option-list{
+  display:grid;
+  gap:12px;
+}
+.option-btn{
+  width:100%;
+  text-align:left;
+  padding:14px 16px;
+  border:1px solid #d8d8e2;
+  background:rgba(255,255,255,0.65);
+  border-radius:14px;
+  font-size:1rem;
+  cursor:pointer;
+  transition:all 0.24s ease;
+}
+.option-btn:hover{
+  background:rgba(242,242,250,0.85);
+  border-color:#b8b8d0;
+}
+.option-btn.selected{
+  background:#e7e3f0;
+  border-color:#9c8eb8;
+}
+.progress-tip{
+  text-align:center;
+  margin-bottom:16px;
+  color:#666;
+}
+.axis-wrap{
+  position:relative;
+  width:320px;
+  height:320px;
+  margin:24px auto;
+  background:rgba(255,255,255,0.6);
+  border-radius:12px;
+}
+.axis-x,.axis-y{
+  position:absolute;
+  background:#aaa;
+}
+.axis-x{
+  width:100%;
+  height:1px;
+  top:50%;
+  transform:translateY(-50%);
+}
+.axis-y{
+  width:1px;
+  height:100%;
+  left:50%;
+  transform:translateX(-50%);
+}
+.dot-user{
+  position:absolute;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:#7c689b;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 0 3px rgba(124,104,155,0.25);
+}
+.axis-label{
+  position:absolute;
+  font-size:0.8rem;
+  color:#777;
+}
+.lbl-x-left{left:6px;top:52%;transform:translateY(-50%);}
+.lbl-x-right{right:6px;top:52%;transform:translateY(-50%);}
+.lbl-y-top{top:6px;left:52%;transform:translateX(-50%);}
+.lbl-y-bottom{bottom:6px;left:52%;transform:translateX(-50%);}
+.quadrant-name{
+  position:absolute;
+  font-size:0.76rem;
+  color:#888;
+}
+.q1{top:12px;right:12px;}
+.q2{top:12px;left:12px;}
+.q3{bottom:12px;right:12px;}
+.q4{bottom:12px;left:12px;}
+.quote-block{
+  margin:12px 0;
+  padding-left:12px;
+  border-left:2px solid #c8c8d8;
+  font-style:italic;
+  color:#444;
+}
+.sub-narrative{
+  opacity:0.86;
+  margin-top:10px;
+}
+.collapse-tip{
+  font-size:0.9rem;
+  color:#666;
+  margin-top:8px;
+  cursor:pointer;
+  user-select:none;
+}
+.collapse-content{
+  margin-top:8px;
+  font-size:0.92rem;
+  display:none;
+}
+.collapse-content.show{
+  display:block;
+}
+textarea{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #d0d0dc;
+  resize:vertical;
+  font-size:1rem;
+  min-height:90px;
+  margin-bottom:10px;
+  background:rgba(255,255,255,0.7);
+}
+.quad-select-wrap{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:12px;
+}
+.quad-sel-btn{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #c4c4d4;
+  background:rgba(255,255,255,0.6);
+  cursor:pointer;
+}
+.quad-sel-btn.active{
+  background:#e7e3f0;
+  border-color:#9c8eb8;
+}
+.btn{
+  width:100%;
+  padding:12px 16px;
+  border-radius:14px;
+  border:1px solid #b8b8cc;
+  background:rgba(255,255,255,0.65);
+  cursor:pointer;
+  font-size:1rem;
+  transition:0.2s ease;
+}
+.btn:hover{
+  background:rgba(234,231,242,0.8);
+}
+.btn-primary{
+  background:#e2ddee;
+  border-color:#a89bc4;
+}
+.fragment-item{
+  background:rgba(255,255,255,0.6);
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:8px;
+  font-size:0.94rem;
+}
+.nav-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+.quiz-nav{
+  margin-top:24px;
+}
+.quiz-nav .btn:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+.privacy-note{
+  font-size:0.82rem;
+  color:#777;
+  margin-bottom:10px;
+}
+small.desc-note{
+  font-size:0.86rem;
+  color:#707080;
+  display:block;
+  margin-top:18px;
+}
+.btn-group-stack{
+  margin-top:28px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.result-capture{
+  padding:20px;
+  margin:-8px -8px 20px;
+  border-radius:18px;
+  background:rgba(255,255,255,0.34);
+}
+.result-conclusion{
+  font-size:1.7rem;
+  line-height:1.45;
+  font-weight:600;
+  margin-bottom:8px;
+}
+.result-capture .privacy-note{
+  margin-bottom:18px;
+}
+.result-capture .quote-block{
+  margin-bottom:0;
+}
+.result-actions{
+  margin-top:24px;
+}
+@media(max-width:480px){
+  .card{
+    padding:24px 20px;
+    border-radius:26px;
+  }
+  .axis-wrap{
+    width:280px;
+    height:280px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<!-- 首页：世界观开篇【已更新指定文案】 -->
+<div id="page-home" class="page active">
+  <div class="card">
+    <h1>文本感知象限</h1>
+    <div class="scene-text">
+<p>你收到一份匿名稿本，带着好奇开始逐页翻阅。</p>
+<p>你发现：这份稿件早已中途停笔，故事并未写完。</p>
+<p>故事不会被你的选择改写，但你本能留意的细节，会悄悄映出你的感知偏好。</p>
+<p>当翻阅完毕，与你共振的叙事意象将会浮现。</p>
+<p>这或许解释了，为什么有些故事会深深打动你，而另一些却难以让你共鸣。</p>
+<small class="desc-note">注：结果仅代表个人阅读感知习惯，不等同于人格测评。</small>
+    </div>
+    <div class="btn-group-stack">
+        <button class="btn btn-primary" id="btn-start">开始翻阅稿本</button>
+        <button class="btn" id="btn-view-cache">查看上次测试结果</button>
+    </div>
+  </div>
+</div>
+
+<!-- 答题页 -->
+<div id="page-quiz" class="page">
+  <div class="card">
+    <div class="progress-tip" id="quiz-progress"></div>
+    <h2 id="quiz-title"></h2>
+    <div class="scene-text" id="quiz-scene"></div>
+    <div class="option-list" id="option-box"></div>
+    <div class="nav-row quiz-nav">
+      <button class="btn" id="btn-quiz-home" type="button">返回首页</button>
+      <button class="btn" id="btn-quiz-prev" type="button">上一页</button>
+      <button class="btn btn-primary" id="btn-quiz-next" type="button">下一页</button>
+    </div>
+  </div>
+</div>
+
+<!-- 结果页 -->
+<div id="page-result" class="page">
+  <div class="card">
+    <div id="result-capture" class="result-capture">
+      <p id="result-coord-text" class="result-conclusion"></p>
+      <p class="privacy-note">提示：本测试仅反映你的文学阅读感知偏好，不是人格测评。</p>
+      <h2>📜主共振意象（匹配度最高）</h2>
+      <div id="main-narrative-block"></div>
+    </div>
+    <h2>✨次共振意象（感知相近备选）</h2>
+    <div class="sub-narrative" id="sub-narrative-block"></div>
+    <div class="collapse-tip" id="collapseTip">点击查看小提示 ▾</div>
+    <div class="collapse-content" id="collapseContent">
+      小提示：如果一部作品极少提供你本能会留意的那类叙事内容，你或许很难获得强烈阅读快感，但这不代表那部作品本身不够优秀。阅读的感受，永远是双向的。
+    </div>
+    <h2>📝把你的句子放进旧稿本</h2>
+    <p class="privacy-note">你写下的所有文字仅保存在本机浏览器，不会上传网络。最多保存8条碎片。</p>
+    <textarea id="user-input-sentence" placeholder="写下此刻你心中想到的一句话（摘抄 / 自己写都可以）"></textarea>
+    <p>这句话对你而言，更偏向哪一类感知倾向？</p>
+    <div class="quad-select-wrap">
+      <button class="quad-sel-btn" data-q="q1">解构-聚焦人物｜我更在意人物的言行、动机与关系变化</button>
+      <button class="quad-sel-btn" data-q="q2">沉浸-聚焦人物｜我会代入人物，跟随角色经历与情绪起伏</button>
+      <button class="quad-sel-btn" data-q="q3">解构-聚焦氛围｜我更在意环境、结构、叙事技巧与表达层次</button>
+      <button class="quad-sel-btn" data-q="q4">沉浸-聚焦氛围｜我会沉浸在氛围、节奏、画面感与整体情绪中</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-primary" id="btn-save-fragment">存入稿本</button>
+      <button class="btn" id="btn-open-fragment">我的稿本碎片</button>
+    </div>
+    <div class="nav-row result-actions" style="margin-top:24px;">
+      <button class="btn" id="btn-save-result-image">保存结果卡片图片</button>
+      <button class="btn" id="btn-restart">重新翻阅稿本</button>
+    </div>
+  </div>
+</div>
+
+<!-- 我的稿本碎片弹窗面板 -->
+<div id="page-fragment" class="page">
+  <div class="card">
+    <h2>我的稿本碎片</h2>
+    <div id="fragment-list"></div>
+    <div class="nav-row" style="margin-top:16px;">
+      <button class="btn" id="btn-back-result">返回结果页</button>
+      <button class="btn" id="btn-clear-fragment">清空全部碎片</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ============ 数据区 ============
+/*
+【项目分层维护说明】
+🔒底层内核：narratives数组内name、x、y为底层测评内核，定稿后禁止修改，改动会改变测评计算结果。
+📖素材层：每个对象内quote、quoteSource字段，后续核验引文后单独替换，不影响任何计算逻辑。
+📝包装层：questions题目数组后续可以自由改写故事、选项文本，不改动底层内核。
+*/
+// 16个叙事意象，quote / quoteSource 后续替换真实摘录
+const narratives = [
+  // 解构‑聚焦人物 X负 Y正
+  {"name":"角色情绪微态","x":-70,"y":75,"brief":"捕捉角色细微、含蓄的神态与情绪流露，无大段直白抒情。","resonance":"你对人物细微的情绪波动十分敏感，善于读懂藏在神态动作下的心境。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"安静书页插画，抽象的情绪波纹，莫迪兰低饱和配色，扁平无人物"},
+  {"name":"角色动机伏笔","x":-80,"y":60,"brief":"文本细节埋下线索，暗示角色行为背后潜藏的内心目的。","resonance":"阅读时你会主动留意字里行间，推敲人物选择背后的动机根源。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"简约莫迪兰风格，书页上隐藏的细小文字记号，安静文艺，扁平插画"},
+  {"name":"角色关系张力","x":-60,"y":85,"brief":"描写角色之间拉扯、矛盾、羁绊，人与人之间潜藏的对抗与牵绊。","resonance":"你擅长捕捉人物互动下暗流，能够体会角色关系内部复杂的张力。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"复古书页，两个人物剪影遥遥相对，朦胧阴影线条，莫迪兰扁平风"},
+  {"name":"角色身份反差","x":-50,"y":65,"brief":"角色外在身份、处境表象，和内在真实人格、境遇形成强烈落差。","resonance":"你会留意人物表象与内里的错位，关注身份外壳之下真实的人。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"翻开的书页，双重人物剪影对照，安静氛围感，莫迪兰扁平插画"},
+
+  // 沉浸‑聚焦人物 X正 Y正
+  {"name":"角色命运抉择","x":70,"y":80,"brief":"角色面临重大取舍，做出足以改变自身命运走向的关键选择。","resonance":"你会跟随角色站在命运路口，为人物的抉择与内心挣扎牵动心绪。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"简约插画，书页，象征抉择的分叉线条，低饱和莫迪兰色调"},
+  {"name":"角色内心共情","x":85,"y":65,"brief":"代入角色处境，感知人物的喜乐伤痛，达成心灵层面的理解。","resonance":"你很容易沉入角色的内心世界，与故事人物的悲欢产生共鸣。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"柔和莫迪兰插画，书页上一段独白文字，柔和光晕，扁平风格"},
+  {"name":"角色成长蜕变","x":60,"y":70,"brief":"历经事件与磨难，角色心智、人格发生改变，完成自我迭代。","resonance":"你会被人物蜕变的过程打动，见证角色从过往走向新的自我。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"书页插画，蜕变抽象线条，莫迪兰低饱和配色，无写实人物"},
+  {"name":"角色执念","x":75,"y":55,"brief":"角色心中难以放下、长久缠绕的情感与精神羁绊。","resonance":"你能够体会人物内心放不下的执念，理解执念带给人物的重量。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"安静书页，缠绕的轻柔抽象线条，莫迪兰扁平插画"},
+
+  // 解构‑聚焦氛围 X负 Y负
+  {"name":"场景伏笔","x":-75,"y":-60,"brief":"环境、景物细节埋下叙事线索，会在后续情节产生呼应。","resonance":"你善于发现环境描写里埋藏的叙事机关，留意场景承担的叙事功能。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"简约书页，环境剪影，隐藏的细小记号，低饱和莫迪兰扁平插画"},
+  {"name":"时空叙事调度","x":-85,"y":-50,"brief":"作者对时间、空间进行切换排布，以此调整故事节奏与基调。","resonance":"你能够觉察作者对时空的调度手法，体会时空切换带来叙事节奏变化。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"书页，抽象时间空间线条，安静文艺扁平莫迪兰插画"},
+  {"name":"物象隐喻","x":-65,"y":-70,"brief":"器物、景物作为象征载体，用来暗示人物命运与故事主旨。","resonance":"你会读懂物象背后承载的寓意，留意景物的叙事象征作用。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"书页插画，花草器物的剪影，带有隐喻意味，莫迪兰扁平"},
+  {"name":"叙事留白","x":-55,"y":-80,"brief":"作者不把全部信息写尽，留下文字空隙交由读者自行解读。","resonance":"你能够识别文本的留白技法，品味文字之外没有言说的意蕴。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"大半空白的旧书页，少量文字，莫迪兰低饱和扁平插画"},
+
+  // 沉浸‑聚焦氛围 X正 Y负
+  {"name":"空间沉浸","x":65,"y":-75,"brief":"完全代入故事物理空间，真切感受故事世界的在场感。","resonance":"你会走进文本构建的空间，沉浸式感受场景本身带来的体验。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"书页上展开辽阔风景剪影，莫迪兰扁平插画"},
+  {"name":"感官沉浸","x":80,"y":-65,"brief":"文字调动视觉、听觉等感官，让读者切身感受场景细节。","resonance":"你对文本中的感官描写敏感，仿佛亲身置身故事场景之中。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"书页，抽象感官波纹线条，柔和莫迪兰配色扁平插画"},
+  {"name":"心境渲染","x":70,"y":-55,"brief":"借环境景物烘托弥散的内在情绪，渲染整体精神氛围。","resonance":"你容易被环境烘托出的心境感染，沉浸在弥漫的情绪气场里。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"朦胧氛围书页插画，柔和渐变色块，莫迪兰扁平风格"},
+  {"name":"余味延宕","x":85,"y":-80,"brief":"故事结束之后，情绪感受久久留存，带来悠长阅读后味。","resonance":"读完片段后情绪不会立刻消散，你会长久回味故事留下的感受。","quote":"待补充摘录","quoteSource":"待补充出处","imagePrompt":"旧书页，淡淡的消散光晕，莫迪兰低饱和扁平插画"}
+];
+
+const questions = [
+  {
+    "title":"翻开稿本",
+    "scene":"纸页带着旧纸张淡淡的霉味，你缓缓翻开这份搁置已久的稿本。扉页没有署名，只有几行浅浅涂改过的字迹。故事就这样，毫无预兆地开始了。",
+    "options":[
+      {"text":"留意文本的叙事设计，思考作者如何搭建故事开端","dx":-14,"dy":0},
+      {"text":"沉浸进入故事，期待接下来会发生的情节","dx":14,"dy":0},
+      {"text":"观察开篇的环境描写，感受故事的整体基调","dx":0,"dy":-14},
+      {"text":"好奇故事里会出现什么样的人物，期待人物登场","dx":0,"dy":14}
+    ]
+  },
+  {
+    "title":"初见角色",
+    "scene":"翻过一页，故事的第一位人物出现。暮色从窗棂淌进老旧木屋，男人独自站在窗边，背对着房间。地板落着薄尘，他长久地沉默，没有写下一句内心独白，只留给读者一个静立的背影。",
+    "options":[
+      {"text":"推敲作者通过哪些细节暗示这个人物的过往","dx":-15,"dy":13},
+      {"text":"代入角色，体会他此刻内心的感受","dx":15,"dy":13},
+      {"text":"分析作者如何借旧屋环境烘托人物处境","dx":-15,"dy":-13},
+      {"text":"沉浸感受旧屋笼罩出来的沉静氛围","dx":15,"dy":-13}
+    ]
+  },
+  {
+    "title":"一段对话",
+    "scene":"又一页。另一个人推开木门走进屋子。二人对坐于昏黄灯下，话语缓缓流淌。有些心事压在言语底下，嘴上说出来的只是冰山一角，许多情绪并未直白讲出口。",
+    "options":[
+      {"text":"分辨对话的潜台词，拆解人物背后的矛盾","dx":-13,"dy":15},
+      {"text":"共情二人的情绪，感受对话里的情绪张力","dx":13,"dy":15},
+      {"text":"留意对话发生的环境，看场景如何影响交谈","dx":-13,"dy":-15},
+      {"text":"感受对话所处环境带来的氛围感","dx":13,"dy":-15}
+    ]
+  },
+  {
+    "title":"一处景物描写",
+    "scene":"稿本暂时放下人物，铺展一大段旷野的文字。晚风穿过荒草，天边流云缓慢游走，四下没有行人。只有风声、草叶摇晃，天地辽阔而空旷。",
+    "options":[
+      {"text":"思考这段景物描写在故事里起到什么叙事作用","dx":-14,"dy":-14},
+      {"text":"沉入旷野的意境，被风景本身打动","dx":14,"dy":-14},
+      {"text":"联想景物会如何映照在场角色的心境","dx":-14,"dy":14},
+      {"text":"想象角色身处旷野之中的情绪变化","dx":14,"dy":14}
+    ]
+  },
+  {
+    "title":"一处伏笔浮现",
+    "scene":"回到屋内的段落。桌边搁着一只磨损的黄铜小盒。作者只用寥寥几笔带过，没有解释盒子来历，也没有写里面装着什么。它安安静静摆在文字角落，像一个尚未揭开的秘密。",
+    "options":[
+      {"text":"主动记下这个细节，猜想它后续会如何回收","dx":-16,"dy":0},
+      {"text":"顺其自然读下去，等待故事自然揭晓答案","dx":16,"dy":0},
+      {"text":"观察这个细节所处的环境，感受它带来的气氛","dx":0,"dy":-16},
+      {"text":"好奇这个细节会对角色的命运造成什么影响","dx":0,"dy":16}
+    ]
+  },
+  {
+    "title":"角色面临抉择",
+    "scene":"故事的冲突慢慢聚拢。面前两条道路摆在男人眼前，一边是安稳的旧生活，一边是未知的远方。稿本写到此处，字行微微歪斜，仿佛写作者写到这里也陷入犹豫。",
+    "options":[
+      {"text":"分析角色做出选择背后的动机与内在矛盾","dx":-14,"dy":15},
+      {"text":"共情角色，体会抉择带来的煎熬与挣扎","dx":14,"dy":15},
+      {"text":"思考环境如何推动角色做出这样的选择","dx":-14,"dy":-15},
+      {"text":"感受抉择时刻周遭环境渲染出的压抑氛围","dx":14,"dy":-15}
+    ]
+  },
+  {
+    "title":"读完稿本",
+    "scene":"一页又一页接近稿本末尾。很多前面埋下的细碎线索慢慢收拢。但你能看见，有些地方留下大片空白——作者写到这里，就再也没有继续往下写。稿本到此彻底结束。后面全是空白的纸页。没有完整结局。你轻轻合上泛黄的手稿，坐在旧书房里，回味刚刚读完的一切。",
+    "options":[
+      {"text":"回味故事的写作巧思，思考文本的构造方式","dx":-14,"dy":0},
+      {"text":"沉浸回味故事带给你的情绪感受","dx":14,"dy":0},
+      {"text":"回想故事里的场景风物，记住世界的意境","dx":0,"dy":-14},
+      {"text":"久久记挂故事之中人物的命运","dx":0,"dy":14}
+    ]
+  }
+];
+
+const quadrantMeta = {
+  q1:{name:"喜欢琢磨人物",desc:"阅读时你更习惯跳出故事，琢磨人物的动机、细节与人物之间的关系，留意作者是如何塑造角色。"},
+  q2:{name:"容易共情人物",desc:"阅读时你很容易代入故事，跟随角色的命运起伏，切身感受人物的悲欢与抉择。"},
+  q3:{name:"喜欢品味环境",desc:"阅读时你会留意景物、环境细节，品味场景的用意，观察作者如何搭建故事世界。"},
+  q4:{name:"容易沉浸氛围",desc:"阅读时你会被画面、景物、气氛包裹，沉浸在故事环境带来的感受当中。"}
+};
+
+// ============ 状态 ============
+let state = {
+  currentIdx:0,
+  currentX:0,
+  currentY:0,
+  finalX:0,
+  finalY:0,
+  mainNarrative:null,
+  subNarrative:null,
+  answers:Array(questions.length).fill(null)
+};
+
+const $ = s=>document.querySelector(s);
+const pages = {
+  home:$("#page-home"),
+  quiz:$("#page-quiz"),
+  result:$("#page-result"),
+  fragment:$("#page-fragment")
+};
+function showPage(key){
+  Object.values(pages).forEach(p=>p.classList.remove("active"));
+  pages[key].classList.add("active");
+  document.body.classList.toggle("result-active", key === "result");
+  document.body.classList.toggle("quiz-active", key === "quiz");
+}
+
+// 欧氏距离
+function calcDist(p1,p2){
+  return Math.hypot(p1.x-p2.x, p1.y-p2.y);
+}
+
+// 根据用户坐标，排序获取top1 top2意象
+function getTopTwoNarratives(ux,uy){
+  const arr = narratives.map(n=>({...n, dist:calcDist({x:ux,y:uy}, n)}));
+  arr.sort((a,b)=>a.dist-b.dist);
+  return {main:arr[0], sub:arr[1]};
+}
+
+// 将[-100,100]映射到画布320px容器坐标系(中心160,160)
+function mapCoord(x,y){
+  const size = 320;
+  const half = size/2;
+  const scale = half/100;
+  return {
+    left: half + x*scale,
+    top: half - y*scale
+  };
+}
+
+// 更新css变量，实现背景柔和渐变反馈
+function updateBgVar(x,y){
+  document.documentElement.style.setProperty('--x',x);
+  document.documentElement.style.setProperty('--y',y);
+}
+
+const resultColors = {
+  q1:[183,148,176],
+  q2:[216,166,154],
+  q3:[137,167,193],
+  q4:[147,191,165]
+};
+
+function mixColor(colorA,colorB,weight){
+  return colorA.map((value,idx)=>Math.round(value+(colorB[idx]-value)*weight));
+}
+
+function updateResultBackground(x,y){
+  const normalizedX = Math.min(1,Math.max(0,(x+100)/200));
+  const normalizedY = Math.min(1,Math.max(0,(y+100)/200));
+  const top = mixColor(resultColors.q1,resultColors.q2,normalizedX);
+  const bottom = mixColor(resultColors.q3,resultColors.q4,normalizedX);
+  const color = mixColor(bottom,top,normalizedY);
+  document.documentElement.style.setProperty('--result-bg',`rgb(${color.join(",")})`);
+}
+
+function updateQuizBackground(x,y){
+  updateResultBackground(x,y);
+}
+
+// 获取象限key
+function getQuadKey(x,y){
+  if(x<=0 && y>=0) return "q1";
+  if(x>0 && y>=0) return "q2";
+  if(x<=0 && y<0) return "q3";
+  return "q4";
+}
+
+const quizProgressKey = "textQuad_quizProgress";
+function saveQuizProgress(){
+  localStorage.setItem(quizProgressKey, JSON.stringify({
+    currentIdx:state.currentIdx,
+    answers:state.answers
+  }));
+}
+
+function loadQuizProgress(){
+  const str = localStorage.getItem(quizProgressKey);
+  if(!str) return null;
+  try{
+    const saved = JSON.parse(str);
+    if(!Array.isArray(saved.answers)) return null;
+    const answers = Array(questions.length).fill(null);
+    saved.answers.slice(0, questions.length).forEach((answer,idx)=>{
+      if(Number.isInteger(answer) && answer >= 0 && answer < questions[idx].options.length){
+        answers[idx] = answer;
+      }
+    });
+    return {
+      currentIdx:Math.min(Math.max(Number.isInteger(saved.currentIdx) ? saved.currentIdx : 0, 0), questions.length-1),
+      answers:answers
+    };
+  }catch(e){
+    return null;
+  }
+}
+
+function clearQuizProgress(){
+  localStorage.removeItem(quizProgressKey);
+}
+
+function syncQuizCoordinates(){
+  state.currentX = 0;
+  state.currentY = 0;
+  state.answers.forEach((answer,questionIdx)=>{
+    if(answer === null) return;
+    const opt = questions[questionIdx].options[answer];
+    state.currentX += opt.dx;
+    state.currentY += opt.dy;
+  });
+  updateBgVar(state.currentX, state.currentY);
+}
+
+function updateQuizNav(){
+  const homeBtn = $("#btn-quiz-home");
+  const prevBtn = $("#btn-quiz-prev");
+  const nextBtn = $("#btn-quiz-next");
+  homeBtn.style.display = state.currentIdx === 0 ? "block" : "none";
+  prevBtn.disabled = state.currentIdx === 0;
+  prevBtn.style.display = state.currentIdx === 0 ? "none" : "block";
+  nextBtn.disabled = state.answers[state.currentIdx] === null;
+  nextBtn.textContent = state.currentIdx === questions.length-1 ? "提交" : "下一页";
+}
+
+// 渲染答题页面
+function renderQuiz(){
+  const q = questions[state.currentIdx];
+  $("#quiz-progress").textContent = `第 ${state.currentIdx+1} / ${questions.length} 页 · 翻阅稿本`;
+  $("#quiz-title").textContent = q.title;
+  $("#quiz-scene").textContent = q.scene;
+  const box = $("#option-box");
+  box.innerHTML = "";
+  q.options.forEach((opt,idx)=>{
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.textContent = opt.text;
+    if(state.answers[state.currentIdx] === idx){
+      btn.classList.add("selected");
+    }
+    btn.onclick = ()=>{
+      state.answers[state.currentIdx] = idx;
+      saveQuizProgress();
+      syncQuizCoordinates();
+      updateQuizBackground(state.currentX,state.currentY);
+      renderQuiz();
+    };
+    box.appendChild(btn);
+  });
+  updateQuizNav();
+}
+
+// 答题结束，计算结果，渲染结果页
+function finishQuiz(){
+  syncQuizCoordinates();
+  state.finalX = state.currentX;
+  state.finalY = state.currentY;
+  const {main,sub} = getTopTwoNarratives(state.finalX, state.finalY);
+  state.mainNarrative = main;
+  state.subNarrative = sub;
+
+  // 写入localStorage测试结果
+  const saveResult = {
+    finalX:state.finalX,
+    finalY:state.finalY,
+    mainN:main,
+    subN:sub,
+    ts:Date.now()
+  };
+  localStorage.setItem("textQuad_lastResult", JSON.stringify(saveResult));
+  clearQuizProgress();
+
+  renderResultPage();
+  showPage("result");
+}
+
+function renderResultPage(){
+  const qKey = getQuadKey(state.finalX, state.finalY);
+  const meta = quadrantMeta[qKey];
+  updateResultBackground(state.finalX,state.finalY);
+  $("#result-coord-text").innerHTML =
+    `你的阅读感知倾向：【${meta.name}】<br><span>${meta.desc}</span>`;
+
+  // 主意象
+  const main = state.mainNarrative;
+  $("#main-narrative-block").innerHTML = `
+<strong>${main.name}</strong>
+<p>${main.brief}</p>
+<p>${main.resonance}</p>
+<div class="quote-block">“${main.quote}”<br>——${main.quoteSource}</div>
+`;
+  // 次意象
+  const sub = state.subNarrative;
+  $("#sub-narrative-block").innerHTML = `
+<strong>${sub.name}</strong>
+<p>${sub.brief}</p>
+<div class="quote-block">“${sub.quote}”<br>——${sub.quoteSource}</div>
+`;
+}
+
+// 读取缓存结果
+function loadCacheResult(){
+  const str = localStorage.getItem("textQuad_lastResult");
+  if(!str) return null;
+  try{
+    return JSON.parse(str);
+  }catch(e){return null;}
+}
+
+// 碎片相关
+function getFragments(){
+  const s = localStorage.getItem("textQuad_fragments");
+  if(!s) return [];
+  try{return JSON.parse(s);}catch(e){return [];}
+}
+function saveFragment(item){
+  let arr = getFragments();
+  arr.unshift(item);
+  if(arr.length>8) arr = arr.slice(0,8);
+  localStorage.setItem("textQuad_fragments", JSON.stringify(arr));
+}
+function renderFragmentPage(){
+  const arr = getFragments();
+  const box = $("#fragment-list");
+  box.innerHTML = "";
+  if(arr.length===0){
+    box.innerHTML = "<p>还没有保存任何稿本碎片。</p>";
+    return;
+  }
+  arr.forEach(f=>{
+    const div = document.createElement("div");
+    div.className = "fragment-item";
+    div.innerHTML = `<div>${f.text}</div><div style="font-size:0.8rem;color:#666;margin-top:4px;">归类：${quadrantMeta[f.quad].name}</div>`;
+    box.appendChild(div);
+  });
+}
+
+// ============ 绑定事件 ============
+function startQuiz(){
+  const saved = loadQuizProgress();
+  state = {
+    currentIdx:saved ? saved.currentIdx : 0,
+    currentX:0,
+    currentY:0,
+    finalX:0,
+    finalY:0,
+    mainNarrative:null,
+    subNarrative:null,
+    answers:saved ? saved.answers : Array(questions.length).fill(null)
+  };
+  syncQuizCoordinates();
+  updateQuizBackground(state.currentX,state.currentY);
+  renderQuiz();
+  showPage("quiz");
+}
+
+$("#btn-start").onclick = ()=>{
+  startQuiz();
+};
+
+$("#btn-quiz-home").onclick = ()=>{
+  showPage("home");
+};
+
+$("#btn-quiz-prev").onclick = ()=>{
+  if(state.currentIdx === 0) return;
+  syncQuizCoordinates();
+  updateQuizBackground(state.currentX,state.currentY);
+  state.currentIdx--;
+  saveQuizProgress();
+  renderQuiz();
+};
+
+$("#btn-quiz-next").onclick = ()=>{
+  if(state.answers[state.currentIdx] === null) return;
+  syncQuizCoordinates();
+  if(state.currentIdx === questions.length-1){
+    finishQuiz();
+    return;
+  }
+  state.currentIdx++;
+  saveQuizProgress();
+  renderQuiz();
+};
+
+$("#btn-view-cache").onclick = ()=>{
+  const cache = loadCacheResult();
+  if(!cache){
+    alert("暂无保存的上次测试结果，请先完成一次翻阅稿本。");
+    return;
+  }
+  state.finalX = cache.finalX;
+  state.finalY = cache.finalY;
+  state.mainNarrative = cache.mainN;
+  state.subNarrative = cache.subN;
+  renderResultPage();
+  showPage("result");
+};
+
+// 彩蛋折叠
+$("#collapseTip").onclick = ()=>{
+  $("#collapseContent").classList.toggle("show");
+};
+
+// 象限选择按钮
+let selectedQuad = null;
+document.querySelectorAll(".quad-sel-btn").forEach(btn=>{
+  btn.onclick = function(){
+    document.querySelectorAll(".quad-sel-btn").forEach(b=>b.classList.remove("active"));
+    this.classList.add("active");
+    selectedQuad = this.dataset.q;
+  };
+});
+
+$("#btn-save-fragment").onclick = ()=>{
+  const text = $("#user-input-sentence").value.trim();
+  if(!text){alert("请输入一句话");return;}
+  if(!selectedQuad){alert("请选择这个句子带给你的感知偏向象限");return;}
+  saveFragment({
+    text:text,
+    quad:selectedQuad,
+    ts:Date.now()
+  });
+  alert("已存入你的稿本碎片。");
+  $("#user-input-sentence").value = "";
+  document.querySelectorAll(".quad-sel-btn").forEach(b=>b.classList.remove("active"));
+  selectedQuad = null;
+};
+
+$("#btn-open-fragment").onclick = ()=>{
+  renderFragmentPage();
+  showPage("fragment");
+};
+$("#btn-back-result").onclick = ()=>{
+  showPage("result");
+};
+$("#btn-clear-fragment").onclick = ()=>{
+  if(confirm("确定要清空全部稿本碎片吗？")){
+    localStorage.removeItem("textQuad_fragments");
+    renderFragmentPage();
+  }
+};
+
+$("#btn-restart").onclick = ()=>{
+  clearQuizProgress();
+  showPage("home");
+};
+
+/*
+$("#btn-copy-share").onclick = async ()=>{
+  const main = state.mainNarrative;
+  const shareText = `【文本感知象限｜翻阅一份未完稿本】
+我的阅读感知坐标：(${state.finalX}, ${state.finalY})
+共振叙事意象：${main.name}
+${main.resonance}
+
+同样的故事，不同的人看见不同风景。阅读没有标准答案。`;
+  try{
+    await navigator.clipboard.writeText(shareText);
+    alert("分享文本已复制剪贴板");
+  }catch(e){
+    alert("复制失败，请手动复制：\n"+shareText);
+  }
+};
+*/
+
+$("#btn-save-result-image").onclick = async ()=>{
+  if(typeof html2canvas === "undefined"){
+    alert("当前浏览器无法生成图片，请截图保存");
+    return;
+  }
+  try{
+    const canvas = await html2canvas($("#result-capture"), {
+      backgroundColor:null,
+      scale:2,
+      useCORS:true
+    });
+    const link = document.createElement("a");
+    link.download = "文本感知倾向结果.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }catch(e){
+    alert("当前浏览器无法生成图片，请截图保存");
+  }
+};
+
+showPage("home");
+</script>
+</body>
+</html>
