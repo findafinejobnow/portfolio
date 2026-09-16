@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人作品集｜出海内容与 AIGC 工具原型</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #f3f4f6; color: #1f2937; padding: 30px 15px; }
+        .container { max-width: 860px; margin: 0 auto; }
+        .card { background: #ffffff; border-radius: 18px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 20px; }
+        .title-card { text-align: center; }
+        .title-card h1 { font-size: 26px; color: #1f2937; margin: 0 0 10px; }
+        .title-card .sub { color: #4b5563; font-size: 14px; line-height: 1.7; }
+        .badge { display: inline-block; background: #6366f1; color: #fff; font-size: 12px; padding: 4px 14px; border-radius: 999px; margin-bottom: 12px; }
+        .section-title { font-size: 18px; font-weight: bold; color: #1f2937; margin-bottom: 14px; padding-left: 10px; border-left: 4px solid #6366f1; }
+        .section-title-sm { font-size: 15px; font-weight: bold; color: #1f2937; margin: 16px 0 8px; }
+        .text { color: #374151; font-size: 14px; line-height: 1.9; }
+        .mt { margin-top: 10px; }
+        .mb { margin-bottom: 12px; }
+        .warn-block { background: #fffbeb; border-radius: 12px; padding: 14px 16px; color: #92400e; font-size: 14px; line-height: 1.8; margin: 10px 0; }
+        .tag-block { background: #eff6ff; border-radius: 12px; padding: 16px; margin-top: 10px; }
+        .tag-title { font-weight: bold; color: #1e40af; font-size: 15px; margin-bottom: 8px; }
+        .tag-block p, .tag-block li { color: #374151; font-size: 14px; line-height: 1.9; }
+        .tag-block ul, .tag-block ol { margin: 4px 0 0 18px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { border: 1px solid #e5e7eb; padding: 10px 12px; text-align: left; vertical-align: top; }
+        th { background: #eff6ff; color: #1e40af; }
+        img.shot { width: 100%; display: block; border-radius: 12px; border: 1px solid #e5e7eb; margin: 12px 0; }
+        .skills { list-style: none; }
+        .skills li { margin-bottom: 10px; color: #374151; font-size: 14px; line-height: 1.7; padding-left: 22px; position: relative; }
+        .skills li::before { content: '◆'; position: absolute; left: 2px; top: 5px; color: #6366f1; font-size: 10px; }
+        .contact p { color: #4b5563; font-size: 14px; line-height: 1.9; }
+        .contact a { color: #6366f1; text-decoration: none; }
+        .btn { display: inline-block; padding: 9px 18px; background: #6366f1; color: #fff; border-radius: 8px; text-decoration: none; font-size: 14px; }
+        .btn:hover { opacity: 0.88; }
+        .license { text-align: center; color: #9ca3af; font-size: 12px; padding: 4px 0 14px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="card title-card">
+        <div><span class="badge">个人作品集</span></div>
+        <h1>出海内容与 AIGC 工具原型</h1>
+        <p class="sub">立足俄语本土用户洞察与新闻学内容功底，探索 AIGC 赋能出海社媒内容生产，用可落地原型验证多语言内容自动化创作思路。</p>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">关于我</h2>
+        <p class="text">俄语 + 新闻学硕士，俄语专四专八、英语六级；2 年俄罗斯孔子学院海外任教经历，熟悉俄语本土文化与 VK 等俄语社媒用户语境，深耕跨文化内容本地化。</p>
+        <p class="text mt">具备 AIGC 原型落地经验，独立完成 AI 社媒文案工具（本地大模型驱动），探索大模型在出海营销内容生产的落地应用；拥有记者、内容运营实习经历，擅长内容选题策划、文案撰写与传播效果复盘。</p>
+        <div class="tag-block mt"><div class="tag-title">求职方向</div>
+        <p>出海跨境电商 · 俄语区海外社媒运营 · 全球化内容运营（杭州 / 上海，优先双休）</p></div>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">项目速览</h2>
+        <table>
+            <thead><tr><th>项目</th><th>一句话介绍</th><th>状态</th></tr></thead>
+            <tbody>
+                <tr><td>本地文案工作台</td><td>多平台、多语言 AI 文案改写工具（Flask + Ollama 本地运行）</td><td>可用原型，线上仅可预览前端 UI</td></tr>
+                <tr><td>文学叙事意象四象限测试</td><td>阅读偏好测评，2D 四象限 + 文学引文卡片</td><td>约 40%，持续迭代</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">项目一：本地文案工作台（Local Copy Studio · Qwen2.5 Ollama）</h2>
+        <p class="text">面向出海社媒内容创作的多平台 AI 文案改写工具，5 天完成多版本迭代。</p>
+        <img class="shot" src="./assets/images/copy-studio-01.png" alt="本地文案工作台界面截图">
+        <h3 class="section-title-sm">核心功能</h3>
+        <ul class="skills">
+            <li>多平台风格：小红书、抖音、Instagram、YouTube 等平台文案风格一键生成</li>
+            <li>多语言输出：支持中文 / 英语 / 俄语等语言输出，附中文翻译预览</li>
+            <li>长度档位：简短（约 80 字）/ 中等（约 250 字）/ 长篇（约 600 字）</li>
+            <li>改写指令：自定义改写要求（语气、emoji、种草感、叙事风格等）</li>
+            <li>文风库：保存常用文风，一键复用</li>
+            <li>历史记录：按平台 / 长度 / 时间留存，可继续编辑或重新生成</li>
+            <li>其他：文案合规与钩子检测、复制生成文案功能</li>
+        </ul>
+        <h3 class="section-title-sm">技术方案</h3>
+        <div class="warn-block">⚠️ 后端 Flask + Ollama Qwen2.5-7B 仅本地电脑运行；GitHub Pages 只托管静态前端页面，网页无法执行 AI 生成。</div>
+        <p class="text">前端页面（HTML+CSS+JS） + Flask 后端 + Ollama Qwen2.5-7B（本地部署）</p>
+        <h3 class="section-title-sm">迭代过程</h3>
+        <p class="text">纯前端静态 Demo（多风格模板 + 钩子强度滑块）→ 接入 Flask + Ollama 本地大模型 → 扩展为完整文案工作台（文风库 / 历史记录 / 合规检测 / 多语言输出）</p>
+        <h3 class="section-title-sm">局限与复盘</h3>
+        <ul class="skills">
+            <li>完整生成能力依赖本地 Ollama 环境，公网无法直接演示生成效果</li>
+            <li>预设文风库与模板数量有限，AI 生成输出仍需要人工本地化校对</li>
+            <li>迭代计划：搭建俄语电商行业词库、优化提示词体系、完善钩子与合规检测</li>
+        </ul>
+        <h3 class="section-title-sm">项目收获</h3>
+        <p class="text">提示词工程实践；理解大模型在俄语出海内容生产的能力边界；快速原型迭代思维；区分原型 Demo 和商用产品之间的差距。</p>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">项目二：文学叙事意象四象限测试（文本感知象限）</h2>
+        <p class="text">一个文学叙事风格测评工具：用户完成选择题，根据阅读偏好得到 2D 四象限坐标落点，展示对应的文学引文卡片。</p>
+        <img class="shot" src="./assets/images/perception-demo.png" alt="文本感知象限页面截图">
+        <h3 class="section-title-sm">设计</h3>
+        <ul class="skills">
+            <li>X 轴：解构 ↔ 沉浸（阅读姿态，范围 -100 至 100）</li>
+            <li>Y 轴：聚焦人物 ↔ 聚焦氛围（阅读注意力落点，范围 -100 至 100）</li>
+            <li>四象限：解构-人物 / 沉浸-人物 / 解构-氛围 / 沉浸-氛围</li>
+        </ul>
+        <h3 class="section-title-sm">三层数据架构解耦</h3>
+        <div class="tag-block">
+            <div class="tag-title">维护说明：修改上层素材不会改动底层测评核心逻辑</div>
+            <ol>
+                <li>🔒 底层内核：16 组叙事意象标签固定坐标（定稿不再修改）</li>
+                <li>📖 素材库：16 条文学引文卡片，可独立更新引文与出处，不改动测评计算逻辑</li>
+                <li>📝 测验包装层：题目文本可自由改写迭代，不影响底层计算</li>
+            </ol>
+        </div>
+        <h3 class="section-title-sm">技术方案</h3>
+        <p class="text">原生 HTML + JavaScript + Tailwind CSS，LocalStorage 浏览器本地存储，纯静态单页、无后端，可直接双击打开运行。</p>
+        <h3 class="section-title-sm">当前进度（约 40%）</h3>
+        <ul class="skills">
+            <li>✅ 已完成：底层坐标与四象限设计、测验题目框架、页面基础交互、本地存储逻辑</li>
+            <li>⏳ 待完成：页面布局调整、测试文本叙事基调改写、16 个结果配图资源、原创文学意象片段撰写</li>
+        </ul>
+        <h3 class="section-title-sm">项目收获</h3>
+        <p class="text">用户洞察、叙事内容设计、前端快速原型落地、分层解耦的数据架构设计思维。</p>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">技能清单</h2>
+        <ul class="skills">
+            <li>语言：俄语专四专八、英语六级；中文深度文案、内容策划</li>
+            <li>AIGC：提示词工程、多语言 AI 内容生产、本地大模型 Ollama 调用</li>
+            <li>工具：Vibe Coding、基础 Flask、原生 HTML / JS、Canva、剪映</li>
+            <li>行业认知：VK 俄语社媒生态、内容选题、文案本地化、内容数据复盘</li>
+        </ul>
+    </div>
+
+    <div class="card contact">
+        <h2 class="section-title">联系方式</h2>
+        <p>公开仓库，暂不公开联系方式。</p>
+        <p>GitHub：<a href="https://github.com/findafinejobnow" target="_blank" rel="noopener">https://github.com/findafinejobnow</a></p>
+    </div>
+
+    <div class="license">
+        <p>本仓库全部项目为个人学习、求职展示 Demo。</p>
+        <p>AI 生成内容仅供参考，如果商用必须经过人工本地化校对。</p>
+        <p style="margin-top:6px;"><a class="btn" href="./index.html">← 返回作品集首页</a></p>
+    </div>
+
+</div>
+</body>
+</html>

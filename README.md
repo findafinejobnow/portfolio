@@ -15,7 +15,7 @@
 |[文学叙事意象四象限测试](./text-perception-quadrant/index.html)|阅读审美偏好测评，2D四象限测评 + 文学意象卡片，纯静态前端|🚧 40% 未完迭代|[打开页面](./text-perception-quadrant/index.html)|
 
 ## 📄 完整求职作品集
-👉 [点击查看完整求职作品集 portfolio-index.md](./portfolio-index.md)
+👉 [点击查看完整求职作品集（网页版）](./portfolio-index.html)
 
 ## 个人背景
 俄语+新闻学硕士；俄语专四专八、英语六级；2年俄罗斯孔子学院海外任教经历，熟悉VK俄语社媒本土语境；具备记者、内容运营实习经历。
